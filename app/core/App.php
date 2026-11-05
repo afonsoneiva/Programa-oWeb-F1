@@ -16,21 +16,17 @@ class App {
     // 1. Determinar o Controlador
     if (isset($url[0]) && !empty($url[0])) {
       $segmento = ucfirst($url[0]);
+      $singular = (substr($segmento, -1) === 's') ? substr($segmento, 0, -1) : $segmento;
       
-      // Tenta encontrar "PilotoController.php", "PilotosController.php" ou "Home.php"
       if (file_exists('app/controllers/' . $segmento . 'Controller.php')) {
         $this->controller = $segmento . 'Controller';
+        unset($url[0]);
+      } elseif (file_exists('app/controllers/' . $singular . 'Controller.php')) {
+        $this->controller = $singular . 'Controller';
         unset($url[0]);
       } elseif (file_exists('app/controllers/' . $segmento . '.php')) {
         $this->controller = $segmento;
         unset($url[0]);
-      } elseif (substr($segmento, -1) === 's') {
-        // Trata o plural (ex: "pilotos" -> procura "PilotoController.php")
-        $singular = substr($segmento, 0, -1);
-        if (file_exists('app/controllers/' . $singular . 'Controller.php')) {
-          $this->controller = $singular . 'Controller';
-          unset($url[0]);
-        }
       }
     }
 
@@ -75,8 +71,8 @@ class App {
 
       if (
         file_exists('app/controllers/' . $segCap . 'Controller.php') ||
-        file_exists('app/controllers/' . $segCap . '.php') ||
-        file_exists('app/controllers/' . $segSingular . 'Controller.php')
+        file_exists('app/controllers/' . $segSingular . 'Controller.php') ||
+        file_exists('app/controllers/' . $segCap . '.php')
       ) {
         return array_slice($segments, $index);
       }
