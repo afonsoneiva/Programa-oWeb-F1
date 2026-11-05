@@ -56,6 +56,12 @@ class Db {
     return '';
   }
 
+  private function executeStatement($stmt) {
+    if (!$stmt->execute()) {
+      throw new \RuntimeException("Erro na execução da query SQL: " . $stmt->error);
+    }
+  }
+
   /**
   * Método genérico para a execução do SQL
   * @param   string   $sql         instrução SQL
@@ -68,7 +74,7 @@ class Db {
       $stmt = $this->conn->prepare($sql);
       
       if (!$stmt) {
-        die("Erro na preparação da query SQL: " . $this->conn->error);
+        throw new \RuntimeException("Erro na preparação da query SQL: " . $this->conn->error);
       }
 
       $this->setParameters($stmt, $parameters);
@@ -76,10 +82,10 @@ class Db {
       $sqlUpper = strtoupper(trim($sql));
 
       if (stripos($sqlUpper, 'SELECT') === 0) { 
-          $stmt->execute();
+          $this->executeStatement($stmt);
           $response = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       } elseif (stripos($sqlUpper, 'INSERT') === 0) { 
-          $stmt->execute();
+          $this->executeStatement($stmt);
           $lastId = $this->conn->insert_id;
           $targetTable = !empty($table) ? $table : $this->extractTableName($sql);
           
@@ -90,7 +96,7 @@ class Db {
             $response = ['id' => $lastId];
           }
       } elseif (stripos($sqlUpper, 'UPDATE') === 0) { 
-          $stmt->execute();
+          $this->executeStatement($stmt);
           $response = isset($parameters[1]) ? $parameters[1] : true;
       } elseif (stripos($sqlUpper, 'DELETE') === 0) {
           $targetTable = !empty($table) ? $table : $this->extractTableName($sql);
@@ -101,13 +107,14 @@ class Db {
             $deletedData = $this->execQuery("SELECT * FROM {$targetTable} WHERE id = ?", ['i', [$id]]);
           }
           
-          $stmt->execute();
-          $response = (!empty($deletedData)) ? $deletedData[0] : true;
+          $this->executeStatement($stmt);
+          $response = (!empty($deletedData)) ? $deletedData[0] : false;
       } else {
-          $stmt->execute();
+          $this->executeStatement($stmt);
           $response = true;
       }
 
+      $stmt->close();
       return $response;
   }
 }

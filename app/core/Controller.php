@@ -40,5 +40,24 @@ class Controller {
       echo "<h1>404: Página não encontrada...</h1>";
     }
   }
+
+  protected function redirect(string $path) {
+    header('Location: /Programa-oWeb-F1/' . ltrim($path, '/'));
+    exit;
+  }
+
+  protected function validId($id) {
+    $validatedId = filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    return $validatedId === false ? null : $validatedId;
+  }
+
+  protected function postedString(string $key): string {
+    $value = $_POST[$key] ?? '';
+    return is_string($value) ? trim($value) : '';
+  }
+
+  protected function stringLength(string $value): int {
+    return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
+  }
 }
 ?>
