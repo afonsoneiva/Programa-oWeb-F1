@@ -3,11 +3,11 @@ namespace app\controllers;
 
 use app\core\Controller;
 
-class ConstrutorController extends Controller {
+class ConstrutoresController extends Controller {
 
     public function index() {
-        $construtorModel = $this->model('Construtor');
-        $listaConstrutores = $construtorModel->getAll();
+        $construtoresModel = $this->model('Construtores');
+        $listaConstrutores = $construtoresModel->getAll();
 
         $data = [
             'titulo' => 'Equipas e Construtores 2025',

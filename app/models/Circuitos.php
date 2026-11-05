@@ -3,7 +3,7 @@ namespace app\models;
 
 use app\core\Db;
 
-class Circuito {
+class Circuitos {
     private $db;
 
     public function __construct() {

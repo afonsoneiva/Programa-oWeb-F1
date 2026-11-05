@@ -3,11 +3,11 @@ namespace app\controllers;
 
 use app\core\Controller;
 
-class CircuitoController extends Controller {
+class CircuitosController extends Controller {
 
     public function index() {
-        $circuitoModel = $this->model('Circuito');
-        $listaCircuitos = $circuitoModel->getAll();
+        $circuitosModel = $this->model('Circuitos');
+        $listaCircuitos = $circuitosModel->getAll();
 
         $data = [
             'titulo' => 'Calendário de Circuitos 2025',
