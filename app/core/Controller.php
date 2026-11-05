@@ -56,6 +56,11 @@ class Controller {
     return is_string($value) ? trim($value) : '';
   }
 
+  protected function queryString(string $key): string {
+    $value = $_GET[$key] ?? '';
+    return is_string($value) ? trim($value) : '';
+  }
+
   protected function stringLength(string $value): int {
     return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
   }

@@ -21,6 +21,31 @@
             <div class="alert alert-success"><?php echo htmlspecialchars($data['success'], ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
 
+        <form action="<?php echo $url_alias; ?>/circuitos" method="GET" class="card card-body shadow-sm mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="q" class="form-label">Pesquisa livre</label>
+                    <input type="search" id="q" name="q" class="form-control" value="<?php echo htmlspecialchars($data['filters']['q'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="Circuito, GP, país, cidade ou vencedor">
+                </div>
+                <div class="col-md-2">
+                    <label for="grande_premio" class="form-label">Grande Prémio (exato)</label>
+                    <input type="text" id="grande_premio" name="grande_premio" class="form-control" value="<?php echo htmlspecialchars($data['filters']['grande_premio'], ENT_QUOTES, 'UTF-8'); ?>">
+                </div>
+                <div class="col-md-2">
+                    <label for="pais" class="form-label">País (exato)</label>
+                    <input type="text" id="pais" name="pais" class="form-control" value="<?php echo htmlspecialchars($data['filters']['pais'], ENT_QUOTES, 'UTF-8'); ?>">
+                </div>
+                <div class="col-md-2">
+                    <label for="cidade" class="form-label">Cidade (exata)</label>
+                    <input type="text" id="cidade" name="cidade" class="form-control" value="<?php echo htmlspecialchars($data['filters']['cidade'], ENT_QUOTES, 'UTF-8'); ?>">
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-danger">Pesquisar</button>
+                    <a href="<?php echo $url_alias; ?>/circuitos" class="btn btn-outline-secondary">Limpar</a>
+                </div>
+            </div>
+        </form>
+
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <table class="table table-striped table-hover m-0 align-middle">

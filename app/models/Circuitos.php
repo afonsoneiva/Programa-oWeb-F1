@@ -13,15 +13,37 @@ class Circuitos {
     /**
      * Obtém a lista completa de circuitos com os nomes do piloto e construtor vencedores
      */
-    public function getAll() {
+    public function getAll(array $filters = []) {
         $sql = "SELECT c.*, 
                        p.nome AS piloto_vencedor, 
                        co.nome AS construtor_vencedor
                 FROM circuitos c
                 LEFT JOIN pilotos p ON c.piloto_vencedor_id = p.id
-                LEFT JOIN construtores co ON c.construtor_vencedor_id = co.id
-                ORDER BY c.id ASC";
-        return $this->db->execQuery($sql);
+                LEFT JOIN construtores co ON c.construtor_vencedor_id = co.id";
+        $conditions = [];
+        $types = '';
+        $values = [];
+
+        foreach (['grande_premio', 'pais', 'cidade'] as $field) {
+            if (($filters[$field] ?? '') !== '') {
+                $conditions[] = "c.{$field} = ?";
+                $types .= 's';
+                $values[] = $filters[$field];
+            }
+        }
+        if (($filters['q'] ?? '') !== '') {
+            $conditions[] = '(CAST(c.id AS CHAR) LIKE ? OR c.nome LIKE ? OR c.grande_premio LIKE ? OR c.pais LIKE ? OR c.cidade LIKE ? OR CAST(c.extensao_km AS CHAR) LIKE ? OR CAST(c.num_voltas AS CHAR) LIKE ? OR p.nome LIKE ? OR co.nome LIKE ?)';
+            $search = '%' . $filters['q'] . '%';
+            $types .= 'sssssssss';
+            array_push($values, $search, $search, $search, $search, $search, $search, $search, $search, $search);
+        }
+
+        if ($conditions) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+        $sql .= ' ORDER BY c.id ASC';
+
+        return $this->db->execQuery($sql, $types === '' ? [] : [$types, $values]);
     }
 
     public function getById(int $id) {

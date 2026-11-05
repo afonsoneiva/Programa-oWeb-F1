@@ -7,9 +7,16 @@ class CircuitosController extends Controller {
 
     public function index() {
         $circuitosModel = $this->model('Circuitos');
+        $filters = [
+            'q' => $this->queryString('q'),
+            'grande_premio' => $this->queryString('grande_premio'),
+            'pais' => $this->queryString('pais'),
+            'cidade' => $this->queryString('cidade')
+        ];
         $data = [
             'titulo' => 'Calendário de Circuitos 2025',
-            'circuitos' => $circuitosModel->getAll(),
+            'circuitos' => $circuitosModel->getAll($filters),
+            'filters' => $filters,
             'success' => $this->successMessage()
         ];
 

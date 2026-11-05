@@ -7,9 +7,15 @@ class ConstrutoresController extends Controller {
 
     public function index() {
         $construtoresModel = $this->model('Construtores');
+        $filters = [
+            'q' => $this->queryString('q'),
+            'pais' => $this->queryString('pais'),
+            'motor' => $this->queryString('motor')
+        ];
         $data = [
             'titulo' => 'Equipas e Construtores 2025',
-            'construtores' => $construtoresModel->getAll(),
+            'construtores' => $construtoresModel->getAll($filters),
+            'filters' => $filters,
             'success' => $this->successMessage()
         ];
 

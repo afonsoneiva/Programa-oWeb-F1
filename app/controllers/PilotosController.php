@@ -7,9 +7,19 @@ class PilotosController extends Controller {
 
     public function index() {
         $pilotosModel = $this->model('Pilotos');
+        $construtoresModel = $this->model('Construtores');
+        $construtorId = $this->queryString('construtor_id');
+        $validatedConstrutorId = $construtorId === '' ? null : $this->validId($construtorId);
+        $filters = [
+            'q' => $this->queryString('q'),
+            'nacionalidade' => $this->queryString('nacionalidade'),
+            'construtor_id' => $validatedConstrutorId ?? ''
+        ];
         $data = [
             'titulo' => 'Grelha de Pilotos 2025',
-            'pilotos' => $pilotosModel->getAll(),
+            'pilotos' => $pilotosModel->getAll($filters),
+            'filters' => $filters,
+            'construtores' => $construtoresModel->getAll(),
             'success' => $this->successMessage()
         ];
 

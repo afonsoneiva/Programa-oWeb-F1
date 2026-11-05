@@ -21,6 +21,34 @@
             <div class="alert alert-success"><?php echo htmlspecialchars($data['success'], ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
 
+        <form action="<?php echo $url_alias; ?>/pilotos" method="GET" class="card card-body shadow-sm mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="q" class="form-label">Pesquisa livre</label>
+                    <input type="search" id="q" name="q" class="form-control" value="<?php echo htmlspecialchars($data['filters']['q'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nome, número, nacionalidade ou equipa">
+                </div>
+                <div class="col-md-3">
+                    <label for="nacionalidade" class="form-label">Nacionalidade (exata)</label>
+                    <input type="text" id="nacionalidade" name="nacionalidade" class="form-control" value="<?php echo htmlspecialchars($data['filters']['nacionalidade'], ENT_QUOTES, 'UTF-8'); ?>">
+                </div>
+                <div class="col-md-2">
+                    <label for="construtor_id" class="form-label">Equipa</label>
+                    <select id="construtor_id" name="construtor_id" class="form-select">
+                        <option value="">Todas</option>
+                        <?php foreach ($data['construtores'] as $construtor): ?>
+                            <option value="<?php echo (int) $construtor['id']; ?>" <?php echo (string) $data['filters']['construtor_id'] === (string) $construtor['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($construtor['nome'], ENT_QUOTES, 'UTF-8'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-danger">Pesquisar</button>
+                    <a href="<?php echo $url_alias; ?>/pilotos" class="btn btn-outline-secondary">Limpar</a>
+                </div>
+            </div>
+        </form>
+
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <table class="table table-striped table-hover m-0 align-middle">

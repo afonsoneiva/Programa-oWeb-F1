@@ -13,9 +13,33 @@ class Construtores {
     /**
      * Obtém a lista completa de construtores/equipas
      */
-    public function getAll() {
-        $sql = "SELECT * FROM construtores ORDER BY id ASC";
-        return $this->db->execQuery($sql);
+    public function getAll(array $filters = []) {
+        $sql = "SELECT * FROM construtores";
+        $conditions = [];
+        $types = '';
+        $values = [];
+
+        foreach (['pais', 'motor'] as $field) {
+            if (($filters[$field] ?? '') !== '') {
+                $conditions[] = "{$field} = ?";
+                $types .= 's';
+                $values[] = $filters[$field];
+            }
+        }
+
+        if (($filters['q'] ?? '') !== '') {
+            $conditions[] = '(CAST(id AS CHAR) LIKE ? OR nome LIKE ? OR pais LIKE ? OR motor LIKE ?)';
+            $search = '%' . $filters['q'] . '%';
+            $types .= 'ssss';
+            array_push($values, $search, $search, $search, $search);
+        }
+
+        if ($conditions) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+        $sql .= ' ORDER BY id ASC';
+
+        return $this->db->execQuery($sql, $types === '' ? [] : [$types, $values]);
     }
 
     public function getById(int $id) {
