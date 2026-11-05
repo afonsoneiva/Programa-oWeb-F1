@@ -1,18 +1,24 @@
 <?php
-  require './app/load.php';
-  use app\core\App; // importação/aliasing com o operador use
-                    // a instrução acima é igual a: use app\core\App as App;
-                    // a barra \ define o caminho das classes (diferente do caminho dos foicheiros "/")
-  use app\core\Controller;
-  $app = new App();
+// Ativar exibição de erros durante o desenvolvimento
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-//================================================================================
-// NOTAS: 
-//================================================================================
-/*
-Autoload function:
-_ A técnica acima evita que sejam feitos "requires" para cada uma das classes.
-_ O PHP pode fazer o carregamento das classes quando estas são necessárias.
-*/
-//================================================================================
+// Iniciar a sessão (necessário para autenticação/mensagens)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Autoload simples de classes com namespaces
+spl_autoload_register(function ($classe) {
+    $ficheiro = str_replace('\\', '/', $classe) . '.php';
+    if (file_exists($ficheiro)) {
+        require_once $ficheiro;
+    }
+});
+
+// Instanciar a aplicação MVC principal
+use app\core\App;
+
+$app = new App();
 ?>
