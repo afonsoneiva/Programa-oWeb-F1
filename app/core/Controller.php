@@ -1,41 +1,47 @@
 <?php
 namespace app\core;
-use app\models\Movies;
 
 /**
-* Classe que instancia um model e invoca uma view
+* Classe base que instancia um model e invoca uma view
 */
 class Controller {
 
   /**
   * Método para a invocação de um model.
   *
-  * @param  string  $model   Model que será instanciado para usar numa view
+  * @param   string  $model   Model que será instanciado para usar numa view
   */
   public function model($model) {
-    require 'app/models/' . $model . '.php';
-    $classe = 'app\\models\\' . $model; // *
+    require_once 'app/models/' . $model . '.php';
+    $classe = 'app\\models\\' . $model;
     return new $classe();
-    // *  o duplo backslash deve-se ao facto de estar a ser referenciada uma classe numa string
-    //    o primeiro backslash "escapa" o segundo
   }
 
   /**
   * Método para a invocação de uma view (página).
   *
-  * @param  string  $view   A view que será invocada
-  * @param  array   $data   Dados a exibir na view
+  * @param   string  $view   A view que será invocada (ex: 'pilotos/index')
+  * @param   array   $data   Dados a exibir na view
   */
   public function view(string $view, $data = []) {
-    $url_alias = '/moviesapp_vfinal1';
-    require 'app/views/' . $view . '.php';
+    $url_alias = '/Programa-oWeb-F1';
+    
+    if (file_exists('app/views/' . $view . '.php')) {
+      require_once 'app/views/' . $view . '.php';
+    } else {
+      $this->pageNotFound();
+    }
   }
 
   /**
-  * Método herdado em todas as subclasses.
-  * É invocado quando o método ou classe não são encontrados.
+  * Método invocado quando o método ou a view não são encontrados.
   */
   public function pageNotFound() {
-    $this->view('erro404');
+    if (file_exists('app/views/erro404.php')) {
+      require_once 'app/views/erro404.php';
+    } else {
+      echo "<h1>Erro 404 - Página Não Encontrada</h1>";
+    }
   }
 }
+?>

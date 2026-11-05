@@ -9,7 +9,9 @@
 //   (de nomes de classes, funções e constantes)
 //======================================================================
 namespace app\core;
+
 use mysqli;
+
 class Db {
   private $DBServer;
   private $DBUser;
@@ -24,65 +26,89 @@ class Db {
     $this->DBPass   = '';
     $this->DBName   = 'pwf1';
     $this->conn = new mysqli($this->DBServer, $this->DBUser, $this->DBPass, $this->DBName);
-    $this->conn->set_charset("utf8");
+    $this->conn->set_charset("utf8mb4");
   }
 
   /**
   * Método para a definição dos parâmetros para o prepared statement
-  * @param  MySQLiStatement   $stmt         query "preparada".
-  * @param  array             $parameters   array com tipos e respetivos valores (caso existam)
+  * @param   \mysqli_stmt $stmt        query "preparada"
+  * @param   array        $parameters  array com tipos e respetivos valores (caso existam)
   */
   private function setParameters($stmt, array $parameters) {
-    if (count($parameters)) {
+    if (count($parameters) >= 2) {
       $types = $parameters[0];
       $values = $parameters[1];
-      $stmt->bind_param($types, ...$values); // *1
+      $stmt->bind_param($types, ...$values);
     }
   }
 
   /**
-  * Método para a execução do SQL
-  * @param  string   $sql         instrução SQL
-  * @param  array    $parameters  array de parâmetros
-  *
-  * @return array    $response    dataset
+  * Extrai o nome da tabela a partir de uma query SQL (INSERT/DELETE)
   */
-  
-  // precisa de ser mais genérica porque, nesta versão, apenas responde corretamente para operações sobre a tabela "movies"
-  public function execQuery(string $sql, array $parameters = []) {
+  private function extractTableName(string $sql): string {
+    $sqlTrim = trim($sql);
+    if (preg_match('/INTO\s+([^\s\(]+)/i', $sqlTrim, $matches)) {
+      return trim($matches[1], '`');
+    }
+    if (preg_match('/FROM\s+([^\s\(]+)/i', $sqlTrim, $matches)) {
+      return trim($matches[1], '`');
+    }
+    return '';
+  }
+
+  /**
+  * Método genérico para a execução do SQL
+  * @param   string   $sql         instrução SQL
+  * @param   array    $parameters  array de parâmetros ['tipos', [valores]]
+  * @param   string   $table       (opcional) nome da tabela para suporte a INSERT/DELETE
+  *
+  * @return  mixed    $response    dataset ou registo manipulado
+  */
+  public function execQuery(string $sql, array $parameters = [], string $table = '') {
       $stmt = $this->conn->prepare($sql);
-      $this->setParameters($stmt, $parameters);
-      if (!(stripos(trim($sql), 'DELETE') === 0)) {
-        $stmt->execute();
+      
+      if (!$stmt) {
+        die("Erro na preparação da query SQL: " . $this->conn->error);
       }
 
-      if (stripos(trim($sql), 'SELECT') === 0) { 
-          $response = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-      } elseif (stripos(trim($sql), 'INSERT') === 0) { 
-          $lastId = $this->conn->insert_id; // ID do registo inserido
-          $result = $this->execQuery('SELECT * FROM movies WHERE id = ?', ['i', [$lastId]]); 
-          $response = $result[0];
-      } elseif (stripos(trim($sql), 'UPDATE') === 0) { 
-          $response = $parameters[1]; // devolve os dados enviados para o execQuery (não há necessidade de ir buscar à BD)
-      } elseif (stripos(trim($sql), 'DELETE') === 0) {
-          $id = $parameters[1][0]; // id do registo para DELETE
-          $deletedData = $this->execQuery('SELECT * FROM movies WHERE id = ?', ['i', [$id]]);
-          if (!empty($deletedData)) {
-            $response = $deletedData[0];
-          } else {
-            $response = null;
-          }
+      $this->setParameters($stmt, $parameters);
+
+      $sqlUpper = strtoupper(trim($sql));
+
+      if (stripos($sqlUpper, 'SELECT') === 0) { 
           $stmt->execute();
+          $response = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+      } elseif (stripos($sqlUpper, 'INSERT') === 0) { 
+          $stmt->execute();
+          $lastId = $this->conn->insert_id;
+          $targetTable = !empty($table) ? $table : $this->extractTableName($sql);
+          
+          if (!empty($targetTable) && $lastId > 0) {
+            $result = $this->execQuery("SELECT * FROM {$targetTable} WHERE id = ?", ['i', [$lastId]]); 
+            $response = !empty($result) ? $result[0] : null;
+          } else {
+            $response = ['id' => $lastId];
+          }
+      } elseif (stripos($sqlUpper, 'UPDATE') === 0) { 
+          $stmt->execute();
+          $response = isset($parameters[1]) ? $parameters[1] : true;
+      } elseif (stripos($sqlUpper, 'DELETE') === 0) {
+          $targetTable = !empty($table) ? $table : $this->extractTableName($sql);
+          $id = isset($parameters[1][0]) ? $parameters[1][0] : null;
+          
+          $deletedData = null;
+          if (!empty($targetTable) && $id !== null) {
+            $deletedData = $this->execQuery("SELECT * FROM {$targetTable} WHERE id = ?", ['i', [$id]]);
+          }
+          
+          $stmt->execute();
+          $response = (!empty($deletedData)) ? $deletedData[0] : true;
+      } else {
+          $stmt->execute();
+          $response = true;
       }
 
       return $response;
   }
-
-
-
-  // *1
-  // ... Operador splat
-  // Uma das funções deste operador é transformar um array em parâmetros separados a passar para
-  // determinado método/função (Argument Unpacking)
-
 }
+?>
