@@ -22,7 +22,7 @@ class Db {
     $this->DBServer = 'localhost';
     $this->DBUser   = 'root';
     $this->DBPass   = '';
-    $this->DBName   = 'moviesdb';
+    $this->DBName   = 'pwf1';
     $this->conn = new mysqli($this->DBServer, $this->DBUser, $this->DBPass, $this->DBName);
     $this->conn->set_charset("utf8");
   }
