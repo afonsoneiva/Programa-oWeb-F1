@@ -1,7 +1,52 @@
-<IfModule mod_rewrite.c>
-    Options -Indexes
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
-</IfModule>
+<!doctype html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php echo isset($data['titulo']) ? $data['titulo'] : 'Pilotos F1'; ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-danger">🏎️ Pilotos 2025</h1>
+            <a href="/Programa-oWeb-F1/" class="btn btn-outline-secondary">Voltar ao Início</a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped table-hover m-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Número</th>
+                            <th>Nome</th>
+                            <th>Nacionalidade</th>
+                            <th>Equipa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($data['pilotos'])): ?>
+                            <?php foreach ($data['pilotos'] as $p): ?>
+                                <tr>
+                                    <td><?php echo $p['id']; ?></td>
+                                    <td><span class="badge bg-danger">#<?php echo $p['numero']; ?></span></td>
+                                    <td class="fw-bold"><?php echo htmlspecialchars($p['nome']); ?></td>
+                                    <td><?php echo htmlspecialchars($p['nacionalidade']); ?></td>
+                                    <td><?php echo htmlspecialchars($p['nome_construtor'] ?? 'Sem Equipa'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center py-4">Nenhum piloto encontrado na base de dados.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

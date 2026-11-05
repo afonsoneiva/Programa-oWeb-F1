@@ -3,7 +3,7 @@ namespace app\controllers;
 
 use app\core\Controller;
 
-class Pilotos extends Controller {
+class PilotoController extends Controller {
 
     public function index() {
         $pilotoModel = $this->model('Piloto');
