@@ -83,7 +83,7 @@ class App {
     
     if (file_exists('app/controllers/' . $this->controller . '.php')) {
       require_once('app/controllers/' . $this->controller . '.php');
-      if (class_class_exists($controllerClass) || class_exists($this->controller)) {
+      if (class_exists($controllerClass) || class_exists($this->controller)) {
         $classToInstantiate = class_exists($controllerClass) ? $controllerClass : $this->controller;
         $this->controller = new $classToInstantiate();
         return;
