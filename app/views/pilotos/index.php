@@ -1,3 +1,17 @@
+<?php
+$teamColors = [
+    'McLaren-Mercedes' => '#FF8000',
+    'Ferrari' => '#DC0000',
+    'Red Bull Racing-Honda RBPT' => '#1E41FF',
+    'Mercedes' => '#00D2BE',
+    'Aston Martin Aramco-Mercedes' => '#006F62',
+    'Alpine-Renault' => '#0090FF',
+    'Haas-Ferrari' => '#B6BABD',
+    'Racing Bulls-Honda RBPT' => '#6692FF',
+    'Williams-Mercedes' => '#005AFF',
+    'Kick Sauber-Ferrari' => '#52E252',
+];
+?>
 <!doctype html>
 <html lang="pt">
 <head>
@@ -67,7 +81,8 @@
                             <?php foreach ($data['pilotos'] as $p): ?>
                                 <tr>
                                     <td><?php echo (int) $p['id']; ?></td>
-                                    <td><span class="badge bg-danger">#<?php echo (int) $p['numero']; ?></span></td>
+                                    <?php $teamColor = $teamColors[$p['nome_construtor'] ?? ''] ?? '#DC3545'; ?>
+                                    <td><span class="badge" style="background-color: <?php echo htmlspecialchars($teamColor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff;">#<?php echo (int) $p['numero']; ?></span></td>
                                     <td class="fw-bold"><?php echo htmlspecialchars($p['nome'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars($p['nacionalidade'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars($p['nome_construtor'] ?? 'Sem Equipa', ENT_QUOTES, 'UTF-8'); ?></td>
