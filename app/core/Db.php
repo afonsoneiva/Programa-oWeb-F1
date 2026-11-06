@@ -17,6 +17,7 @@ class Db {
   private $DBUser;
   private $DBPass;
   private $DBName;
+  private $DBPort;
 
   private $conn;
 
@@ -25,13 +26,15 @@ class Db {
     $this->DBUser   = 'root';
     $this->DBPass   = '';
     $this->DBName   = 'pwf1';
-    $this->conn = new mysqli($this->DBServer, $this->DBUser, $this->DBPass, $this->DBName);
+    $this->DBPort   = 3307;
+    
+    $this->conn = new mysqli($this->DBServer, $this->DBUser, $this->DBPass, $this->DBName, $this->DBPort);
     $this->conn->set_charset("utf8mb4");
   }
 
   /**
   * Método para a definição dos parâmetros para o prepared statement
-  * @param   \mysqli_stmt $stmt        query "preparada"
+  * @param   \mysqli_stmt $stmt    query "preparada"
   * @param   array        $parameters  array com tipos e respetivos valores (caso existam)
   */
   private function setParameters($stmt, array $parameters) {
