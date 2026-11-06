@@ -1,3 +1,17 @@
+<?php
+$teamColors = [
+    'McLaren-Mercedes' => '#FF8000',
+    'Ferrari' => '#DC0000',
+    'Red Bull Racing-Honda RBPT' => '#1E41FF',
+    'Mercedes' => '#00D2BE',
+    'Aston Martin Aramco-Mercedes' => '#006F62',
+    'Alpine-Renault' => '#0090FF',
+    'Haas-Ferrari' => '#B6BABD',
+    'Racing Bulls-Honda RBPT' => '#6692FF',
+    'Williams-Mercedes' => '#005AFF',
+    'Kick Sauber-Ferrari' => '#52E252',
+];
+?>
 <!doctype html>
 <html lang="pt">
 <head>
@@ -61,7 +75,8 @@
                                     <td><?php echo (int) $c['id']; ?></td>
                                     <td class="fw-bold text-dark"><?php echo htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars($c['pais'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><span class="badge bg-secondary"><?php echo htmlspecialchars($c['motor'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                    <?php $teamColor = $teamColors[$c['nome'] ?? ''] ?? '#6C757D'; ?>
+                                    <td><span class="badge" style="background-color: <?php echo htmlspecialchars($teamColor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff;"><?php echo htmlspecialchars($c['motor'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></span></td>
                                     <td class="text-nowrap">
                                         <a href="<?php echo $url_alias; ?>/construtores/update/<?php echo (int) $c['id']; ?>" class="btn btn-sm btn-outline-primary">Editar</a>
                                         <form action="<?php echo $url_alias; ?>/construtores/delete/<?php echo (int) $c['id']; ?>" method="POST" class="d-inline" onsubmit="return confirm('Eliminar este construtor?');">
