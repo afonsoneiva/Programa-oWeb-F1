@@ -21,7 +21,7 @@ $iniciais = function (string $nome): string {
         </p>
         <p class="text-muted mb-0">
             Trabalho Prático #1 da Unidade Curricular de <strong>Programação Web</strong> —
-            Engenharia de Computação Gráfica e Multimédia, 3.º ano, ESTG / Universsidade Politécnica de Viana do Castelo,
+            Engenharia de Computação Gráfica e Multimédia, 3.º ano, ESTG / Universidade Politécnica de Viana do Castelo,
             ano letivo 2026/2027.
         </p>
     </div>
