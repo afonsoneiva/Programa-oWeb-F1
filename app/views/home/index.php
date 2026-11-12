@@ -24,6 +24,10 @@
             <a href="<?php echo $url_alias;?>/construtores" class="btn btn-dark btn-lg px-4">Construtores</a>
             <a href="<?php echo $url_alias;?>/circuitos" class="btn btn-secondary btn-lg px-4">Circuitos</a>
           </div>
+
+          <p class="mt-4 mb-0">
+            <a href="<?php echo $url_alias;?>/sobre" class="link-secondary">Sobre o projeto e autores</a>
+          </p>
         </div>
       </div>
     </div>
