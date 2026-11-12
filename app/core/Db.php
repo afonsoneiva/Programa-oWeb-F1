@@ -26,7 +26,7 @@ class Db {
     $this->DBUser   = 'root';
     $this->DBPass   = '';
     $this->DBName   = 'pwf1';
-    $this->DBPort   = 3307;
+    $this->DBPort   = 3306;
     
     $this->conn = new mysqli($this->DBServer, $this->DBUser, $this->DBPass, $this->DBName, $this->DBPort);
     $this->conn->set_charset("utf8mb4");
