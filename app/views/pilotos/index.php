@@ -59,10 +59,12 @@
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('pilotos/update/' . (int) $p['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <?php if (is_admin()): ?>
                                 <form action="<?php echo url('pilotos/delete/' . (int) $p['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o piloto <?php echo e($p['nome']); ?>?">
                                     <?php echo csrf_field(); ?>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                 </form>
+                                <?php endif; ?>
                             </td>
                         <?php endif; ?>
                     </tr>

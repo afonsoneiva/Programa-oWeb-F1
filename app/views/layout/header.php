@@ -39,11 +39,17 @@ $menu = [
             <?php if (auth_user()): ?>
                 <form action="<?php echo url('auth/logout'); ?>" method="POST" class="d-flex align-items-center gap-2 mt-2 mt-md-0">
                     <?php echo csrf_field(); ?>
-                    <span class="navbar-text small">👤 <?php echo e(auth_user()['nome']); ?></span>
+                    <span class="navbar-text small">
+                        👤 <?php echo e(auth_user()['nome']); ?>
+                        <?php if (is_admin()): ?><span class="badge bg-danger ms-1">admin</span><?php endif; ?>
+                    </span>
                     <button type="submit" class="btn btn-sm btn-outline-light">Terminar Sessão</button>
                 </form>
             <?php else: ?>
-                <a href="<?php echo url('auth/login'); ?>" class="btn btn-sm btn-danger mt-2 mt-md-0">Iniciar Sessão</a>
+                <div class="d-flex gap-2 mt-2 mt-md-0">
+                    <a href="<?php echo url('auth/register'); ?>" class="btn btn-sm btn-outline-light">Criar Conta</a>
+                    <a href="<?php echo url('auth/login'); ?>" class="btn btn-sm btn-danger">Iniciar Sessão</a>
+                </div>
             <?php endif; ?>
         </div>
     </div>

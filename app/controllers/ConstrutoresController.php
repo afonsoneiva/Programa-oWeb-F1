@@ -38,7 +38,9 @@ class ConstrutoresController extends Controller {
     }
 
     public function delete($id = null) {
-        $this->requireLogin();
+        if (!$this->requireAdmin()) {
+            return;
+        }
         if (!$this->isPost()) {
             $this->methodNotAllowed();
             return;

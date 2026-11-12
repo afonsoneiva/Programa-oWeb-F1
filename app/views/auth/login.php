@@ -14,6 +14,9 @@
                 <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password">
             </div>
             <button type="submit" class="btn btn-danger w-100">Entrar</button>
+            <p class="text-center small mt-3 mb-0">
+                Ainda não tens conta? <a href="<?php echo url('auth/register'); ?>" class="link-danger">Cria uma aqui</a>
+            </p>
         </form>
     </div>
 </div>

@@ -25,6 +25,13 @@ function auth_user() {
 }
 
 /**
+ * Indica se o utilizador autenticado é administrador.
+ */
+function is_admin(): bool {
+    return (auth_user()['perfil'] ?? '') === 'admin';
+}
+
+/**
  * Token CSRF da sessão (criado na primeira utilização).
  */
 function csrf_token(): string {

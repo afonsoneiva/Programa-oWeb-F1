@@ -50,10 +50,12 @@
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('construtores/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <?php if (is_admin()): ?>
                                 <form action="<?php echo url('construtores/delete/' . (int) $c['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o construtor <?php echo e($c['nome']); ?>?">
                                     <?php echo csrf_field(); ?>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                 </form>
+                                <?php endif; ?>
                             </td>
                         <?php endif; ?>
                     </tr>

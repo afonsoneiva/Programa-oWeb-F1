@@ -29,14 +29,7 @@ class AuthController extends Controller {
             } else {
                 $utilizador = $this->model('Utilizadores')->authenticate($email, $password);
                 if ($utilizador) {
-                    // Novo ID de sessão para evitar session fixation
-                    session_regenerate_id(true);
-                    $_SESSION['user'] = [
-                        'id' => (int) $utilizador['id'],
-                        'nome' => $utilizador['nome'],
-                        'email' => $utilizador['email'],
-                        'perfil' => $utilizador['perfil']
-                    ];
+                    $this->startSession($utilizador);
                     $this->redirect($next);
                 }
                 $errors[] = 'Email ou password incorretos.';
@@ -47,6 +40,55 @@ class AuthController extends Controller {
             'titulo' => 'Iniciar Sessão',
             'email' => $email,
             'next' => $next,
+            'errors' => $errors
+        ]);
+    }
+
+    /**
+     * Criação de conta (perfil "utilizador": pode adicionar e editar, mas não eliminar).
+     */
+    public function register() {
+        if ($this->currentUser()) {
+            $this->redirect('');
+        }
+
+        $errors = [];
+        $conta = ['nome' => '', 'email' => ''];
+
+        if ($this->isPost()) {
+            $conta = [
+                'nome' => $this->postedString('nome'),
+                'email' => $this->postedString('email')
+            ];
+            $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+            $confirmacao = is_string($_POST['password_confirm'] ?? null) ? $_POST['password_confirm'] : '';
+            $utilizadoresModel = $this->model('Utilizadores');
+
+            $errors = $this->validateRequiredStrings($conta, [
+                'nome' => ['Nome', 100],
+                'email' => ['Email', 150]
+            ]);
+            if ($conta['email'] !== '' && !filter_var($conta['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Indica um email válido.';
+            } elseif ($conta['email'] !== '' && $utilizadoresModel->getByEmail($conta['email'])) {
+                $errors[] = 'Já existe uma conta com este email.';
+            }
+            if ($this->stringLength($password) < 8) {
+                $errors[] = 'A password tem de ter pelo menos 8 caracteres.';
+            } elseif ($password !== $confirmacao) {
+                $errors[] = 'As passwords não coincidem.';
+            }
+
+            if (!$errors) {
+                $utilizador = $utilizadoresModel->create($conta['nome'], $conta['email'], $password);
+                $this->startSession($utilizador);
+                $this->redirect('?success=registered');
+            }
+        }
+
+        $this->view('auth/register', [
+            'titulo' => 'Criar Conta',
+            'conta' => $conta,
             'errors' => $errors
         ]);
     }
@@ -64,6 +106,19 @@ class AuthController extends Controller {
         }
         session_destroy();
         $this->redirect('');
+    }
+
+    /**
+     * Guarda o utilizador na sessão (com novo ID de sessão, para evitar session fixation).
+     */
+    private function startSession(array $utilizador) {
+        session_regenerate_id(true);
+        $_SESSION['user'] = [
+            'id' => (int) $utilizador['id'],
+            'nome' => $utilizador['nome'],
+            'email' => $utilizador['email'],
+            'perfil' => $utilizador['perfil']
+        ];
     }
 
     /**

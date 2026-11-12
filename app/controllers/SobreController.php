@@ -17,7 +17,7 @@ class SobreController extends Controller {
                 'Gestão completa (CRUD) de pilotos, construtores e circuitos',
                 'Filtros por atributo e pesquisa com texto livre em todas as listagens',
                 'Relações entre entidades (piloto ↔ equipa, circuito ↔ vencedor)',
-                'Autenticação com sessões para proteger a criação, edição e remoção de dados',
+                'Criação de conta e autenticação com sessões (utilizadores adicionam e editam; só administradores eliminam)',
                 'Interface responsiva, adaptada a computador, tablet e telemóvel',
             ],
             'tecnologias' => ['PHP (POO)', 'MVC', 'MySQL / MySQLi', 'HTML5', 'CSS3', 'Bootstrap 5', 'JavaScript', 'Apache (.htaccess)'],

@@ -160,6 +160,23 @@ class Controller {
     $this->redirect('auth/login' . ($next !== '' ? '?next=' . urlencode($next) : ''));
   }
 
+  /**
+   * Garante que o utilizador autenticado é administrador.
+   * @return bool  false se o acesso foi recusado (a página de erro já foi apresentada)
+   */
+  protected function requireAdmin(): bool {
+    $this->requireLogin();
+    if (is_admin()) {
+      return true;
+    }
+    http_response_code(403);
+    $this->view('erro', [
+      'titulo' => 'Acesso negado',
+      'mensagem' => 'Apenas administradores podem executar esta ação.'
+    ]);
+    return false;
+  }
+
   protected function validCsrf(): bool {
     $token = $_POST['csrf'] ?? '';
     return is_string($token) && !empty($_SESSION['csrf']) && hash_equals($_SESSION['csrf'], $token);

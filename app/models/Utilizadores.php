@@ -11,6 +11,18 @@ class Utilizadores extends Model {
         return $result[0] ?? null;
     }
 
+    /**
+     * Cria uma conta nova. A password é guardada em hash.
+     */
+    public function create(string $nome, string $email, string $password, string $perfil = 'utilizador') {
+        $sql = "INSERT INTO utilizadores (nome, email, password, perfil) VALUES (?, ?, ?, ?)";
+        return $this->db->execQuery(
+            $sql,
+            ['ssss', [$nome, $email, password_hash($password, PASSWORD_DEFAULT), $perfil]],
+            $this->table
+        );
+    }
+
     public function updatePassword(int $id, string $hash) {
         return $this->db->execQuery("UPDATE utilizadores SET password = ? WHERE id = ?", ['si', [$hash, $id]]);
     }

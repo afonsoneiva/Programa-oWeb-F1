@@ -9,7 +9,7 @@ Trabalho Prático #1 de Programação Web — ECGM, ESTG-UNIPVC, 2026/2027.
 
 - CRUD de pilotos, construtores e circuitos
 - Filtros por atributo e pesquisa com texto livre
-- Autenticação com sessões: as listagens são públicas, mas criar, editar e eliminar exigem login
+- Criação de conta e autenticação com sessões: as listagens são públicas; utilizadores registados podem adicionar e editar; só administradores podem eliminar
 - Proteção CSRF em todos os formulários, passwords guardadas com `password_hash()`
 - Interface responsiva (Bootstrap 5)
 
@@ -58,8 +58,9 @@ scripts.sql/pwf1.sql      Script de criação da base de dados
 |---|---|---|
 | `/` | Página inicial | |
 | `/pilotos`, `/construtores`, `/circuitos` | Listagens com filtros e pesquisa | |
-| `/<secção>/create` | Adicionar registo | ✔ |
-| `/<secção>/update/{id}` | Editar registo | ✔ |
-| `/<secção>/delete/{id}` (POST) | Eliminar registo | ✔ |
+| `/<secção>/create` | Adicionar registo | utilizador |
+| `/<secção>/update/{id}` | Editar registo | utilizador |
+| `/<secção>/delete/{id}` (POST) | Eliminar registo | admin |
 | `/sobre` | Sobre o projeto e autores | |
+| `/auth/register` | Criar conta | |
 | `/auth/login`, `/auth/logout` | Iniciar / terminar sessão | |

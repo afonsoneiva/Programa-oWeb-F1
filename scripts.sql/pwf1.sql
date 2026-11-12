@@ -116,7 +116,7 @@ CREATE TABLE utilizadores (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    perfil VARCHAR(20) DEFAULT 'admin'
+    perfil VARCHAR(20) NOT NULL DEFAULT 'utilizador'  -- 'admin' ou 'utilizador'
 );
 
 -- Utilizador administrador inicial
