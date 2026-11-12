@@ -29,6 +29,30 @@ footer.bg-dark {
     min-width: 3rem;
 }
 
+/* Favoritos nas listagens */
+.favorito-toggle {
+    display: inline-block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #997300;
+    font: inherit;
+    font-size: 1.35rem;
+    line-height: 1;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+.favorito-toggle:hover,
+.favorito-toggle.ativo {
+    color: #e6a700;
+}
+
+.favorito-toggle:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
 /* Avatares com iniciais (página Sobre) */
 .avatar {
     width: 72px;

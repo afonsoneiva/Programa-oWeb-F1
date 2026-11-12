@@ -9,6 +9,9 @@ CREATE DATABASE IF NOT EXISTS pwf1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode
 USE pwf1;
 
 -- Apagar tabelas existentes (ordem inversa das dependências)
+DROP TABLE IF EXISTS utilizador_circuitos_favoritos;
+DROP TABLE IF EXISTS utilizador_construtores_favoritos;
+DROP TABLE IF EXISTS utilizador_pilotos_favoritos;
 DROP TABLE IF EXISTS utilizadores;
 DROP TABLE IF EXISTS circuitos;
 DROP TABLE IF EXISTS pilotos;
@@ -123,3 +126,34 @@ CREATE TABLE utilizadores (
 -- Email: admin@f1.pt | Password: 123456 (guardada em hash com password_hash() do PHP)
 INSERT INTO utilizadores (nome, email, password, perfil) VALUES
 ('Admin F1', 'admin@f1.pt', '$2y$10$QJ41cj/iNeFwODN1L./yZuddqq8LlJRBDCVqKS/msIOfeISkCYfwe', 'admin');
+
+-- 5. TABELAS DE FAVORITOS (cada utilizador gere os seus próprios favoritos)
+CREATE TABLE utilizador_pilotos_favoritos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilizador_id INT NOT NULL,
+    piloto_id INT NOT NULL,
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_piloto (utilizador_id, piloto_id),
+    CONSTRAINT fk_fav_piloto_user FOREIGN KEY (utilizador_id) REFERENCES utilizadores(id) ON DELETE CASCADE,
+    CONSTRAINT fk_fav_piloto_item FOREIGN KEY (piloto_id) REFERENCES pilotos(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE utilizador_construtores_favoritos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilizador_id INT NOT NULL,
+    construtor_id INT NOT NULL,
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_construtor (utilizador_id, construtor_id),
+    CONSTRAINT fk_fav_construtor_user FOREIGN KEY (utilizador_id) REFERENCES utilizadores(id) ON DELETE CASCADE,
+    CONSTRAINT fk_fav_construtor_item FOREIGN KEY (construtor_id) REFERENCES construtores(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE utilizador_circuitos_favoritos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilizador_id INT NOT NULL,
+    circuito_id INT NOT NULL,
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_circuito (utilizador_id, circuito_id),
+    CONSTRAINT fk_fav_circuito_user FOREIGN KEY (utilizador_id) REFERENCES utilizadores(id) ON DELETE CASCADE,
+    CONSTRAINT fk_fav_circuito_item FOREIGN KEY (circuito_id) REFERENCES circuitos(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

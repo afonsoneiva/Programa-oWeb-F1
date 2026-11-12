@@ -6,6 +6,7 @@ use app\core\Controller;
 class ConstrutoresController extends Controller {
 
     public function index() {
+        $utilizador = $this->currentUser();
         $filters = [
             'q' => $this->queryString('q'),
             'pais' => $this->queryString('pais'),
@@ -16,6 +17,7 @@ class ConstrutoresController extends Controller {
             'titulo' => 'Equipas e Construtores 2025',
             'construtores' => $this->model('Construtores')->getAll($filters),
             'filters' => $filters,
+            'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('construtores', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Construtor')
         ]);
     }

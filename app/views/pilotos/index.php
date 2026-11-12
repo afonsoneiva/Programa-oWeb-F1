@@ -53,7 +53,22 @@
                     <tr>
                         <td><?php echo (int) $p['id']; ?></td>
                         <td><span class="badge badge-equipa" style="background-color: <?php echo e($p['cor_equipa']); ?>;">#<?php echo (int) $p['numero']; ?></span></td>
-                        <td class="fw-bold"><?php echo e($p['nome']); ?></td>
+                        <td class="fw-bold">
+                            <div class="d-inline-flex align-items-center gap-2">
+                                <?php echo e($p['nome']); ?>
+                                <?php if (auth_user()): ?>
+                                    <?php $favorito = in_array((int) $p['id'], $data['favoritos'], true); ?>
+                                    <form action="<?php echo url('favoritos/toggle'); ?>" method="POST" class="d-inline">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="entidade" value="pilotos">
+                                        <input type="hidden" name="item_id" value="<?php echo (int) $p['id']; ?>">
+                                        <button type="submit" class="favorito-toggle<?php echo $favorito ? ' ativo' : ''; ?>" aria-label="<?php echo $favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'; ?>" title="<?php echo $favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'; ?>"><?php echo $favorito ? '★' : '☆'; ?></button>
+                                    </form>
+                                <?php else: ?>
+                                    <a class="favorito-toggle" href="<?php echo url('auth/login?next=pilotos'); ?>" aria-label="Inicia sessão para adicionar aos favoritos" title="Inicia sessão para adicionar aos favoritos">☆</a>
+                                <?php endif; ?>
+                            </div>
+                        </td>
                         <td><?php echo e($p['nacionalidade']); ?></td>
                         <td><?php echo e($p['nome_construtor'] ?? 'Sem Equipa'); ?></td>
                         <?php if ($podeEditar): ?>

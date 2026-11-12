@@ -7,6 +7,7 @@ class PilotosController extends Controller {
 
     public function index() {
         $construtorId = $this->queryString('construtor_id');
+        $utilizador = $this->currentUser();
         $filters = [
             'q' => $this->queryString('q'),
             'nacionalidade' => $this->queryString('nacionalidade'),
@@ -18,6 +19,7 @@ class PilotosController extends Controller {
             'pilotos' => $this->model('Pilotos')->getAll($filters),
             'filters' => $filters,
             'construtores' => $this->model('Construtores')->getAll(),
+            'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('pilotos', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Piloto')
         ]);
     }
