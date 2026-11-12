@@ -56,7 +56,8 @@ scripts.sql/pwf1.sql      Script de criação da base de dados
 
 | URL | Descrição | Login |
 |---|---|---|
-| `/` | Página inicial | |
+| `/` | Página inicial: números da época, vitórias e curiosidades | |
+| `/home/pesquisa?q=` | Pesquisa global em pilotos, equipas e circuitos | |
 | `/pilotos`, `/construtores`, `/circuitos` | Listagens com filtros e pesquisa | |
 | `/<secção>/create` | Adicionar registo | utilizador |
 | `/<secção>/update/{id}` | Editar registo | utilizador |

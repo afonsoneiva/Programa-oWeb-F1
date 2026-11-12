@@ -38,6 +38,64 @@ class Circuitos extends Model {
         return $this->select($sql, $conditions, $types, $values, 'c.id ASC');
     }
 
+    //==================================================================
+    // Estatísticas (página inicial)
+    //==================================================================
+
+    /**
+     * Pilotos com mais vitórias (inclui a cor da equipa atual do piloto).
+     */
+    public function vitoriasPorPiloto(int $limite = 5): array {
+        $sql = "SELECT p.id, p.nome, co.nome AS equipa, COUNT(*) AS vitorias
+                FROM circuitos c
+                JOIN pilotos p ON p.id = c.piloto_vencedor_id
+                LEFT JOIN construtores co ON co.id = p.construtor_id
+                GROUP BY p.id, p.nome, co.nome
+                ORDER BY vitorias DESC, p.nome ASC
+                LIMIT ?";
+        return array_map(function ($linha) {
+            return $linha + ['cor' => Construtores::cor($linha['equipa'])];
+        }, $this->db->execQuery($sql, ['i', [$limite]]));
+    }
+
+    /**
+     * Equipas com mais vitórias.
+     */
+    public function vitoriasPorConstrutor(int $limite = 5): array {
+        $sql = "SELECT co.id, co.nome, COUNT(*) AS vitorias
+                FROM circuitos c
+                JOIN construtores co ON co.id = c.construtor_vencedor_id
+                GROUP BY co.id, co.nome
+                ORDER BY vitorias DESC, co.nome ASC
+                LIMIT ?";
+        return array_map(function ($linha) {
+            return $linha + ['cor' => Construtores::cor($linha['nome'])];
+        }, $this->db->execQuery($sql, ['i', [$limite]]));
+    }
+
+    /**
+     * Total de quilómetros de corrida da época (extensão × voltas).
+     */
+    public function kmTotais(): float {
+        $result = $this->db->execQuery("SELECT COALESCE(SUM(extensao_km * num_voltas), 0) AS km FROM circuitos");
+        return (float) $result[0]['km'];
+    }
+
+    /**
+     * Circuitos "recordistas": mais longo, mais curto e com mais voltas.
+     */
+    public function curiosidades(): array {
+        $primeiro = function (string $ordem) {
+            $result = $this->db->execQuery("SELECT * FROM circuitos ORDER BY {$ordem} LIMIT 1");
+            return $result[0] ?? null;
+        };
+        return array_filter([
+            'mais_longo' => $primeiro('extensao_km DESC'),
+            'mais_curto' => $primeiro('extensao_km ASC'),
+            'mais_voltas' => $primeiro('num_voltas DESC'),
+        ]);
+    }
+
     public function create(array $data) {
         $sql = "INSERT INTO circuitos (nome, grande_premio, pais, cidade, extensao_km, num_voltas, piloto_vencedor_id, construtor_vencedor_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";

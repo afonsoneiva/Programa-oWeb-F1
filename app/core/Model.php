@@ -21,6 +21,11 @@ abstract class Model {
         return $result[0] ?? null;
     }
 
+    public function count(): int {
+        $result = $this->db->execQuery("SELECT COUNT(*) AS total FROM {$this->table}");
+        return (int) ($result[0]['total'] ?? 0);
+    }
+
     public function delete(int $id) {
         return $this->db->execQuery("DELETE FROM {$this->table} WHERE id = ?", ['i', [$id]], $this->table);
     }
