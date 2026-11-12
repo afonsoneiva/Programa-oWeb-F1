@@ -1,7 +1,7 @@
 # Portal F1 — Época 2025
 
 Aplicação web informativa sobre a temporada 2025 de Fórmula 1, desenvolvida em PHP (POO + MVC) com MySQLi.
-Trabalho Prático #1 de Programação Web — ECGM, ESTG-IPVC, 2026/2027.
+Trabalho Prático #1 de Programação Web — ECGM, ESTG-UNIPVC, 2026/2027.
 
 **Autores:** Afonso Neiva (33104) · André Freitas (33782) · Diogo Viana (34504)
 
