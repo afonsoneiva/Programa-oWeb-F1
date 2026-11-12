@@ -6,31 +6,30 @@ use app\core\Controller;
 class CircuitosController extends Controller {
 
     public function index() {
-        $circuitosModel = $this->model('Circuitos');
         $filters = [
             'q' => $this->queryString('q'),
             'grande_premio' => $this->queryString('grande_premio'),
             'pais' => $this->queryString('pais'),
             'cidade' => $this->queryString('cidade')
         ];
-        $data = [
-            'titulo' => 'Calendário de Circuitos 2025',
-            'circuitos' => $circuitosModel->getAll($filters),
-            'filters' => $filters,
-            'success' => $this->successMessage()
-        ];
 
-        $this->view('circuitos/index', $data);
+        $this->view('circuitos/index', [
+            'titulo' => 'Calendário de Circuitos 2025',
+            'circuitos' => $this->model('Circuitos')->getAll($filters),
+            'filters' => $filters,
+            'success' => $this->successMessage('Circuito')
+        ]);
     }
 
     public function create() {
+        $this->requireLogin();
         $this->showForm(null);
     }
 
-    public function update($id) {
+    public function update($id = null) {
+        $this->requireLogin();
         $id = $this->validId($id);
-        $circuitosModel = $this->model('Circuitos');
-        $circuito = $id === null ? null : $circuitosModel->getById($id);
+        $circuito = $id === null ? null : $this->model('Circuitos')->getById($id);
         if (!$circuito) {
             $this->pageNotFound();
             return;
@@ -39,10 +38,10 @@ class CircuitosController extends Controller {
         $this->showForm($id, $circuito);
     }
 
-    public function delete($id) {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo 'Método não permitido.';
+    public function delete($id = null) {
+        $this->requireLogin();
+        if (!$this->isPost()) {
+            $this->methodNotAllowed();
             return;
         }
 
@@ -57,6 +56,9 @@ class CircuitosController extends Controller {
         $this->redirect('circuitos?success=deleted');
     }
 
+    /**
+     * Formulário de criação/edição (GET apresenta, POST valida e grava).
+     */
     private function showForm($id, $circuito = null) {
         $circuitosModel = $this->model('Circuitos');
         $pilotosModel = $this->model('Pilotos');
@@ -73,10 +75,10 @@ class CircuitosController extends Controller {
             'construtor_vencedor_id' => null
         ];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPost()) {
             $numeroVoltas = filter_var($_POST['num_voltas'] ?? null, FILTER_VALIDATE_INT);
-            $pilotoIdRaw = $_POST['piloto_vencedor_id'] ?? '';
-            $construtorIdRaw = $_POST['construtor_vencedor_id'] ?? '';
+            $pilotoIdRaw = $this->postedString('piloto_vencedor_id');
+            $construtorIdRaw = $this->postedString('construtor_vencedor_id');
             $pilotoId = $pilotoIdRaw === '' ? null : $this->validId($pilotoIdRaw);
             $construtorId = $construtorIdRaw === '' ? null : $this->validId($construtorIdRaw);
             $circuito = [
@@ -91,18 +93,12 @@ class CircuitosController extends Controller {
                 'construtor_vencedor_id' => $construtorId
             ];
 
-            foreach ([
+            $errors = $this->validateRequiredStrings($circuito, [
                 'nome' => ['Nome do circuito', 100],
                 'grande_premio' => ['Grande Prémio', 100],
                 'pais' => ['País', 50],
                 'cidade' => ['Cidade', 50]
-            ] as $field => [$label, $maxLength]) {
-                if ($circuito[$field] === '') {
-                    $errors[] = $label . ' é obrigatório.';
-                } elseif ($this->stringLength($circuito[$field]) > $maxLength) {
-                    $errors[] = $label . ' excede o limite de ' . $maxLength . ' caracteres.';
-                }
-            }
+            ]);
             if (!preg_match('/^\d+(?:\.\d{1,3})?$/D', $circuito['extensao_km']) || (float) $circuito['extensao_km'] <= 0) {
                 $errors[] = 'Indica uma extensão válida superior a zero.';
             } elseif ((float) $circuito['extensao_km'] >= 10) {
@@ -120,7 +116,6 @@ class CircuitosController extends Controller {
 
             if (!$errors) {
                 $circuito['extensao_km'] = (float) $circuito['extensao_km'];
-                $circuito['num_voltas'] = $numeroVoltas;
                 if ($id === null) {
                     $circuitosModel->create($circuito);
                     $this->redirect('circuitos?success=created');
@@ -136,18 +131,7 @@ class CircuitosController extends Controller {
             'pilotos' => $pilotosModel->getAll(),
             'construtores' => $construtoresModel->getAll(),
             'errors' => $errors,
-            'action' => '/Programa-oWeb-F1/circuitos/' . ($id === null ? 'create' : 'update/' . $id)
+            'action' => url('circuitos/' . ($id === null ? 'create' : 'update/' . $id))
         ]);
     }
-
-    private function successMessage() {
-        $messages = [
-            'created' => 'Circuito adicionado com sucesso.',
-            'updated' => 'Circuito atualizado com sucesso.',
-            'deleted' => 'Circuito eliminado com sucesso.'
-        ];
-        $success = $_GET['success'] ?? '';
-        return is_string($success) ? ($messages[$success] ?? null) : null;
-    }
 }
-?>

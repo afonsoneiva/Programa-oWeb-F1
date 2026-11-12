@@ -1,84 +1,75 @@
 <?php
 namespace app\core;
 
+/**
+ * Router da aplicação.
+ * Converte o URL em controlador/método/parâmetros:
+ *   /pilotos/update/5  ->  PilotosController->update(5)
+ */
 class App {
-  private $controller;
-  private $method;
-  private $params;
+  private $controller = 'HomeController';
+  private $method = 'index';
+  private $params = [];
 
   public function __construct() {
-    $this->controller = 'Home';
-    $this->method = 'index';
-    $this->params = [];
-
     $url = $this->parseURL();
 
-    // 1. Determinar o Controlador
-    if (isset($url[0]) && !empty($url[0])) {
-      $segmento = ucfirst($url[0]);
-      $singular = (substr($segmento, -1) === 's') ? substr($segmento, 0, -1) : $segmento;
-      
-      if (file_exists('app/controllers/' . $segmento . 'Controller.php')) {
-        $this->controller = $segmento . 'Controller';
-        unset($url[0]);
-      } elseif (file_exists('app/controllers/' . $singular . 'Controller.php')) {
-        $this->controller = $singular . 'Controller';
-        unset($url[0]);
-      } elseif (file_exists('app/controllers/' . $segmento . '.php')) {
-        $this->controller = $segmento;
-        unset($url[0]);
+    // 1. Determinar o controlador
+    if (!empty($url[0])) {
+      $controller = $this->controllerName($url[0]);
+      if ($controller === null) {
+        (new Controller())->pageNotFound();
+        return;
       }
+      $this->controller = $controller;
+      unset($url[0]);
     }
 
     $controllerClass = 'app\\controllers\\' . $this->controller;
-    require_once 'app/controllers/' . $this->controller . '.php';
+    $this->controller = new $controllerClass();
 
-    if (class_exists($controllerClass)) {
-      $this->controller = new $controllerClass();
-    } else {
-      $this->controller = new $this->controller();
-    }
-
-    // 2. Determinar o Método
-    if (isset($url[1]) && !empty($url[1])) {
-      if (method_exists($this->controller, $url[1])) {
-        $this->method = $url[1];
-        unset($url[1]);
+    // 2. Determinar o método (apenas métodos públicos)
+    if (!empty($url[1])) {
+      if (!is_callable([$this->controller, $url[1]])) {
+        $this->controller->pageNotFound();
+        return;
       }
+      $this->method = $url[1];
+      unset($url[1]);
     }
 
-    // 3. Capturar Parâmetros
+    // 3. Parâmetros restantes
     $this->params = $url ? array_values($url) : [];
 
-    // 4. Executar Controlador e Método
+    // 4. Executar
     call_user_func_array([$this->controller, $this->method], $this->params);
   }
 
   /**
-  * Lê o URL a partir de $_GET['url'] ou analisa a barra de endereço
-  */
-  private function parseURL() {
-    if (isset($_GET['url']) && !empty($_GET['url'])) {
-      return explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL));
+   * Nome da classe do controlador para um segmento do URL (aceita
+   * singular ou plural: /piloto e /pilotos), ou null se não existir.
+   */
+  private function controllerName(string $segmento) {
+    if (!preg_match('/^[A-Za-z]+$/', $segmento)) {
+      return null;
     }
-
-    $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $segments = array_values(array_filter(explode('/', $requestUri)));
-
-    foreach ($segments as $index => $segment) {
-      $segCap = ucfirst($segment);
-      $segSingular = (substr($segCap, -1) === 's') ? substr($segCap, 0, -1) : $segCap;
-
-      if (
-        file_exists('app/controllers/' . $segCap . 'Controller.php') ||
-        file_exists('app/controllers/' . $segSingular . 'Controller.php') ||
-        file_exists('app/controllers/' . $segCap . '.php')
-      ) {
-        return array_slice($segments, $index);
+    $segmento = ucfirst(strtolower($segmento));
+    foreach ([$segmento, $segmento . 's'] as $nome) {
+      if (file_exists('app/controllers/' . $nome . 'Controller.php')) {
+        return $nome . 'Controller';
       }
     }
+    return null;
+  }
 
-    return [];
+  /**
+   * Lê o URL a partir de $_GET['url'] (definido pelo .htaccess).
+   */
+  private function parseURL(): array {
+    $url = $_GET['url'] ?? '';
+    if (!is_string($url) || $url === '') {
+      return [];
+    }
+    return explode('/', filter_var(trim($url, '/'), FILTER_SANITIZE_URL));
   }
 }
-?>

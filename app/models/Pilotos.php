@@ -1,18 +1,18 @@
 <?php
 namespace app\models;
 
-use app\core\Db;
+use app\core\Model;
 
-class Pilotos {
-    private $db;
+class Pilotos extends Model {
+    protected $table = 'pilotos';
 
-    public function __construct() {
-        $this->db = new Db();
-    }
-
+    /**
+     * Lista de pilotos (com o nome da equipa) e filtros opcionais
+     * (q, nacionalidade, construtor_id).
+     */
     public function getAll(array $filters = []) {
         $sql = "SELECT p.*, c.nome AS nome_construtor
-                FROM pilotos p 
+                FROM pilotos p
                 LEFT JOIN construtores c ON p.construtor_id = c.id";
         $conditions = [];
         $types = '';
@@ -30,23 +30,14 @@ class Pilotos {
         }
         if (($filters['q'] ?? '') !== '') {
             $conditions[] = '(CAST(p.id AS CHAR) LIKE ? OR p.nome LIKE ? OR CAST(p.numero AS CHAR) LIKE ? OR p.nacionalidade LIKE ? OR c.nome LIKE ?)';
-            $search = '%' . $filters['q'] . '%';
             $types .= 'sssss';
-            array_push($values, $search, $search, $search, $search, $search);
+            array_push($values, ...array_fill(0, 5, '%' . $filters['q'] . '%'));
         }
 
-        if ($conditions) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        }
-        $sql .= ' ORDER BY p.id ASC';
-
-        return $this->db->execQuery($sql, $types === '' ? [] : [$types, $values]);
-    }
-
-    public function getById(int $id) {
-        $sql = "SELECT * FROM pilotos WHERE id = ?";
-        $result = $this->db->execQuery($sql, ['i', [$id]]);
-        return $result[0] ?? null;
+        $pilotos = $this->select($sql, $conditions, $types, $values, 'p.id ASC');
+        return array_map(function ($piloto) {
+            return $piloto + ['cor_equipa' => Construtores::cor($piloto['nome_construtor'])];
+        }, $pilotos);
     }
 
     public function create(array $data) {
@@ -54,7 +45,7 @@ class Pilotos {
         return $this->db->execQuery(
             $sql,
             ['sisi', [$data['nome'], $data['numero'], $data['nacionalidade'], $data['construtor_id']]],
-            'pilotos'
+            $this->table
         );
     }
 
@@ -65,10 +56,4 @@ class Pilotos {
             ['sisii', [$data['nome'], $data['numero'], $data['nacionalidade'], $data['construtor_id'], $id]]
         );
     }
-
-    public function delete(int $id) {
-        $sql = "DELETE FROM pilotos WHERE id = ?";
-        return $this->db->execQuery($sql, ['i', [$id]], 'pilotos');
-    }
 }
-?>

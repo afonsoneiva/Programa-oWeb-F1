@@ -13,23 +13,18 @@ namespace app\core;
 use mysqli;
 
 class Db {
-  private $DBServer;
-  private $DBUser;
-  private $DBPass;
-  private $DBName;
-  private $DBPort;
+  /** Ligação partilhada por todas as instâncias (uma só ligação por pedido). */
+  private static $sharedConn = null;
 
   private $conn;
 
   public function __construct() {
-    $this->DBServer = 'localhost';
-    $this->DBUser   = 'root';
-    $this->DBPass   = '';
-    $this->DBName   = 'pwf1';
-    $this->DBPort   = 3306;
-    
-    $this->conn = new mysqli($this->DBServer, $this->DBUser, $this->DBPass, $this->DBName, $this->DBPort);
-    $this->conn->set_charset("utf8mb4");
+    if (self::$sharedConn === null) {
+      // Credenciais definidas em app/config.php
+      self::$sharedConn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+      self::$sharedConn->set_charset("utf8mb4");
+    }
+    $this->conn = self::$sharedConn;
   }
 
   /**

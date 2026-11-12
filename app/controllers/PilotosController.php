@@ -6,34 +6,31 @@ use app\core\Controller;
 class PilotosController extends Controller {
 
     public function index() {
-        $pilotosModel = $this->model('Pilotos');
-        $construtoresModel = $this->model('Construtores');
         $construtorId = $this->queryString('construtor_id');
-        $validatedConstrutorId = $construtorId === '' ? null : $this->validId($construtorId);
         $filters = [
             'q' => $this->queryString('q'),
             'nacionalidade' => $this->queryString('nacionalidade'),
-            'construtor_id' => $validatedConstrutorId ?? ''
-        ];
-        $data = [
-            'titulo' => 'Grelha de Pilotos 2025',
-            'pilotos' => $pilotosModel->getAll($filters),
-            'filters' => $filters,
-            'construtores' => $construtoresModel->getAll(),
-            'success' => $this->successMessage()
+            'construtor_id' => $construtorId === '' ? '' : ($this->validId($construtorId) ?? '')
         ];
 
-        $this->view('pilotos/index', $data);
+        $this->view('pilotos/index', [
+            'titulo' => 'Pilotos 2025',
+            'pilotos' => $this->model('Pilotos')->getAll($filters),
+            'filters' => $filters,
+            'construtores' => $this->model('Construtores')->getAll(),
+            'success' => $this->successMessage('Piloto')
+        ]);
     }
 
     public function create() {
+        $this->requireLogin();
         $this->showForm(null);
     }
 
-    public function update($id) {
+    public function update($id = null) {
+        $this->requireLogin();
         $id = $this->validId($id);
-        $pilotosModel = $this->model('Pilotos');
-        $piloto = $id === null ? null : $pilotosModel->getById($id);
+        $piloto = $id === null ? null : $this->model('Pilotos')->getById($id);
         if (!$piloto) {
             $this->pageNotFound();
             return;
@@ -42,10 +39,10 @@ class PilotosController extends Controller {
         $this->showForm($id, $piloto);
     }
 
-    public function delete($id) {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo 'Método não permitido.';
+    public function delete($id = null) {
+        $this->requireLogin();
+        if (!$this->isPost()) {
+            $this->methodNotAllowed();
             return;
         }
 
@@ -60,6 +57,9 @@ class PilotosController extends Controller {
         $this->redirect('pilotos?success=deleted');
     }
 
+    /**
+     * Formulário de criação/edição (GET apresenta, POST valida e grava).
+     */
     private function showForm($id, $piloto = null) {
         $pilotosModel = $this->model('Pilotos');
         $construtoresModel = $this->model('Construtores');
@@ -71,9 +71,9 @@ class PilotosController extends Controller {
             'construtor_id' => null
         ];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPost()) {
             $numero = filter_var($_POST['numero'] ?? null, FILTER_VALIDATE_INT);
-            $construtorIdRaw = $_POST['construtor_id'] ?? '';
+            $construtorIdRaw = $this->postedString('construtor_id');
             $construtorId = $construtorIdRaw === '' ? null : $this->validId($construtorIdRaw);
             $piloto = [
                 'id' => $id,
@@ -83,18 +83,12 @@ class PilotosController extends Controller {
                 'construtor_id' => $construtorId
             ];
 
-            if ($piloto['nome'] === '') {
-                $errors[] = 'Nome é obrigatório.';
-            } elseif ($this->stringLength($piloto['nome']) > 100) {
-                $errors[] = 'O nome não pode exceder 100 caracteres.';
-            }
+            $errors = $this->validateRequiredStrings($piloto, [
+                'nome' => ['Nome', 100],
+                'nacionalidade' => ['Nacionalidade', 50]
+            ]);
             if ($numero === false || $numero < 0) {
                 $errors[] = 'Indica um número de piloto válido.';
-            }
-            if ($piloto['nacionalidade'] === '') {
-                $errors[] = 'Nacionalidade é obrigatória.';
-            } elseif ($this->stringLength($piloto['nacionalidade']) > 50) {
-                $errors[] = 'A nacionalidade não pode exceder 50 caracteres.';
             }
             if ($construtorIdRaw !== '' && ($construtorId === null || !$construtoresModel->getById($construtorId))) {
                 $errors[] = 'Seleciona um construtor válido.';
@@ -115,18 +109,7 @@ class PilotosController extends Controller {
             'piloto' => $piloto,
             'construtores' => $construtoresModel->getAll(),
             'errors' => $errors,
-            'action' => '/Programa-oWeb-F1/pilotos/' . ($id === null ? 'create' : 'update/' . $id)
+            'action' => url('pilotos/' . ($id === null ? 'create' : 'update/' . $id))
         ]);
     }
-
-    private function successMessage() {
-        $messages = [
-            'created' => 'Piloto adicionado com sucesso.',
-            'updated' => 'Piloto atualizado com sucesso.',
-            'deleted' => 'Piloto eliminado com sucesso.'
-        ];
-        $success = $_GET['success'] ?? '';
-        return is_string($success) ? ($messages[$success] ?? null) : null;
-    }
 }
-?>

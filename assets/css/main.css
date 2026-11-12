@@ -1,0 +1,42 @@
+/* ==========================================================
+   Portal F1 — estilos próprios (complementam o Bootstrap)
+   ========================================================== */
+
+:root {
+    --f1-vermelho: #e10600;
+    --f1-escuro: #15151e;
+}
+
+/* Faixa em xadrez por baixo da navbar (bandeira de chegada) */
+.faixa-xadrez {
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--f1-escuro) 0 16px, #fff 16px 32px);
+}
+
+.navbar.bg-dark,
+footer.bg-dark {
+    background-color: var(--f1-escuro) !important;
+}
+
+/* Cabeçalho das páginas (título + botões) */
+.cabecalho-pagina h1 {
+    font-size: calc(1.4rem + 1vw);
+}
+
+/* Badges com a cor da equipa */
+.badge-equipa {
+    color: #fff;
+    min-width: 3rem;
+}
+
+/* Avatares com iniciais (página Sobre) */
+.avatar {
+    width: 72px;
+    height: 72px;
+    font-size: 1.5rem;
+}
+
+/* Botões de ação nas tabelas não quebram linha */
+.acoes {
+    white-space: nowrap;
+}

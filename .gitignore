@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Configuração local de cada elemento do grupo (ex.: porta do MySQL)
+app/config.local.php

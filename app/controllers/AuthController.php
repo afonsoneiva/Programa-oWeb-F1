@@ -18,14 +18,13 @@ class AuthController extends Controller {
         $email = '';
         $next = $this->safeNext($_POST['next'] ?? $_GET['next'] ?? '');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPost()) {
+            // O token CSRF já foi validado no construtor de Controller
             $email = $this->postedString('email');
             $password = $_POST['password'] ?? '';
             $password = is_string($password) ? $password : '';
 
-            if (!$this->validCsrf()) {
-                $errors[] = 'Sessão expirada. Tenta novamente.';
-            } elseif ($email === '' || $password === '') {
+            if ($email === '' || $password === '') {
                 $errors[] = 'Indica o email e a password.';
             } else {
                 $utilizador = $this->model('Utilizadores')->authenticate($email, $password);
@@ -48,15 +47,13 @@ class AuthController extends Controller {
             'titulo' => 'Iniciar Sessão',
             'email' => $email,
             'next' => $next,
-            'errors' => $errors,
-            'csrf' => $this->csrfToken()
+            'errors' => $errors
         ]);
     }
 
     public function logout() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !$this->validCsrf()) {
-            http_response_code(405);
-            echo 'Método não permitido.';
+        if (!$this->isPost()) {
+            $this->methodNotAllowed();
             return;
         }
 
@@ -73,10 +70,9 @@ class AuthController extends Controller {
      * Só aceita caminhos internos relativos (evita open redirect).
      */
     private function safeNext($next): string {
-        if (!is_string($next) || $next === '' || !preg_match('#^[A-Za-z0-9/_\-?=&%.]*$#', $next) || strpos($next, '//') !== false) {
+        if (!is_string($next) || !preg_match('#^[A-Za-z0-9/_\-?=&%.]*$#', $next) || strpos($next, '//') !== false) {
             return '';
         }
         return ltrim($next, '/');
     }
 }
-?>

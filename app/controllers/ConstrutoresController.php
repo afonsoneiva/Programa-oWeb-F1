@@ -6,86 +6,41 @@ use app\core\Controller;
 class ConstrutoresController extends Controller {
 
     public function index() {
-        $construtoresModel = $this->model('Construtores');
         $filters = [
             'q' => $this->queryString('q'),
             'pais' => $this->queryString('pais'),
             'motor' => $this->queryString('motor')
         ];
-        $data = [
+
+        $this->view('construtores/index', [
             'titulo' => 'Equipas e Construtores 2025',
-            'construtores' => $construtoresModel->getAll($filters),
+            'construtores' => $this->model('Construtores')->getAll($filters),
             'filters' => $filters,
-            'success' => $this->successMessage()
-        ];
-
-        $this->view('construtores/index', $data);
-    }
-
-    public function create() {
-        $construtoresModel = $this->model('Construtores');
-        $construtor = ['nome' => '', 'pais' => '', 'motor' => ''];
-        $errors = [];
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $construtor = [
-                'nome' => $this->postedString('nome'),
-                'pais' => $this->postedString('pais'),
-                'motor' => $this->postedString('motor')
-            ];
-            $errors = $this->validateConstrutor($construtor);
-
-            if (!$errors) {
-                $construtoresModel->create($construtor);
-                $this->redirect('construtores?success=created');
-            }
-        }
-
-        $this->view('construtores/form', [
-            'titulo' => 'Adicionar Construtor',
-            'construtor' => $construtor,
-            'errors' => $errors,
-            'action' => '/Programa-oWeb-F1/construtores/create'
+            'success' => $this->successMessage('Construtor')
         ]);
     }
 
-    public function update($id) {
+    public function create() {
+        $this->requireLogin();
+        $this->showForm(null);
+    }
+
+    public function update($id = null) {
+        $this->requireLogin();
         $id = $this->validId($id);
-        $construtoresModel = $this->model('Construtores');
-        $construtor = $id === null ? null : $construtoresModel->getById($id);
+        $construtor = $id === null ? null : $this->model('Construtores')->getById($id);
         if (!$construtor) {
             $this->pageNotFound();
             return;
         }
 
-        $errors = [];
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $construtor = [
-                'id' => $id,
-                'nome' => $this->postedString('nome'),
-                'pais' => $this->postedString('pais'),
-                'motor' => $this->postedString('motor')
-            ];
-            $errors = $this->validateConstrutor($construtor);
-
-            if (!$errors) {
-                $construtoresModel->update($id, $construtor);
-                $this->redirect('construtores?success=updated');
-            }
-        }
-
-        $this->view('construtores/form', [
-            'titulo' => 'Editar Construtor',
-            'construtor' => $construtor,
-            'errors' => $errors,
-            'action' => '/Programa-oWeb-F1/construtores/update/' . $id
-        ]);
+        $this->showForm($id, $construtor);
     }
 
-    public function delete($id) {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo 'Método não permitido.';
+    public function delete($id = null) {
+        $this->requireLogin();
+        if (!$this->isPost()) {
+            $this->methodNotAllowed();
             return;
         }
 
@@ -100,30 +55,42 @@ class ConstrutoresController extends Controller {
         $this->redirect('construtores?success=deleted');
     }
 
-    private function validateConstrutor(array $construtor): array {
+    /**
+     * Formulário de criação/edição (GET apresenta, POST valida e grava).
+     */
+    private function showForm($id, $construtor = null) {
+        $construtoresModel = $this->model('Construtores');
         $errors = [];
-        foreach ([
-            'nome' => ['Nome', 100],
-            'pais' => ['País', 50],
-            'motor' => ['Motor', 50]
-        ] as $field => [$label, $maxLength]) {
-            if ($construtor[$field] === '') {
-                $errors[] = $label . ' é obrigatório.';
-            } elseif ($this->stringLength($construtor[$field]) > $maxLength) {
-                $errors[] = $label . ' excede o limite de ' . $maxLength . ' caracteres.';
+        $construtor = $construtor ?? ['nome' => '', 'pais' => '', 'motor' => ''];
+
+        if ($this->isPost()) {
+            $construtor = [
+                'id' => $id,
+                'nome' => $this->postedString('nome'),
+                'pais' => $this->postedString('pais'),
+                'motor' => $this->postedString('motor')
+            ];
+            $errors = $this->validateRequiredStrings($construtor, [
+                'nome' => ['Nome', 100],
+                'pais' => ['País', 50],
+                'motor' => ['Motor', 50]
+            ]);
+
+            if (!$errors) {
+                if ($id === null) {
+                    $construtoresModel->create($construtor);
+                    $this->redirect('construtores?success=created');
+                }
+                $construtoresModel->update($id, $construtor);
+                $this->redirect('construtores?success=updated');
             }
         }
-        return $errors;
-    }
 
-    private function successMessage() {
-        $messages = [
-            'created' => 'Construtor adicionado com sucesso.',
-            'updated' => 'Construtor atualizado com sucesso.',
-            'deleted' => 'Construtor eliminado com sucesso.'
-        ];
-        $success = $_GET['success'] ?? '';
-        return is_string($success) ? ($messages[$success] ?? null) : null;
+        $this->view('construtores/form', [
+            'titulo' => $id === null ? 'Adicionar Construtor' : 'Editar Construtor',
+            'construtor' => $construtor,
+            'errors' => $errors,
+            'action' => url('construtores/' . ($id === null ? 'create' : 'update/' . $id))
+        ]);
     }
 }
-?>

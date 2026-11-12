@@ -9,7 +9,6 @@ class SobreController extends Controller {
         $data = [
             'titulo' => 'Sobre o Projeto',
             'autores' => [
-                // TODO: confirmar nomes e números de aluno
                 ['nome' => 'Afonso Neiva',  'numero' => '33104', 'curso' => 'Eng. Computação Gráfica e Multimédia'],
                 ['nome' => 'André Freitas', 'numero' => '33782', 'curso' => 'Eng. Computação Gráfica e Multimédia'],
                 ['nome' => 'Diogo Viana',   'numero' => '34504', 'curso' => 'Eng. Computação Gráfica e Multimédia'],

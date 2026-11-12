@@ -1,97 +1,81 @@
-<!doctype html>
-<html lang="pt">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo isset($data['titulo']) ? $data['titulo'] : 'Circuitos F1'; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+<?php $podeEditar = (bool) auth_user(); ?>
 
-    <div class="container py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-danger">🏁 Calendário de Circuitos 2025</h1>
-            <div class="d-flex gap-2">
-                <a href="<?php echo $url_alias; ?>/circuitos/create" class="btn btn-danger">Adicionar Circuito</a>
-                <a href="<?php echo $url_alias; ?>/" class="btn btn-outline-secondary">Voltar ao Início</a>
-            </div>
+<div class="cabecalho-pagina d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <h1 class="fw-bold text-danger m-0">🏁 Calendário de Circuitos 2025</h1>
+    <?php if ($podeEditar): ?>
+        <a href="<?php echo url('circuitos/create'); ?>" class="btn btn-danger align-self-start align-self-sm-auto">Adicionar Circuito</a>
+    <?php endif; ?>
+</div>
+
+<form action="<?php echo url('circuitos'); ?>" method="GET" class="card card-body shadow-sm mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-12 col-lg-4">
+            <label for="q" class="form-label">Pesquisa livre</label>
+            <input type="search" id="q" name="q" class="form-control" value="<?php echo e($data['filters']['q']); ?>" placeholder="Circuito, GP, país, cidade ou vencedor">
         </div>
-
-        <?php if (!empty($data['success'])): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($data['success'], ENT_QUOTES, 'UTF-8'); ?></div>
-        <?php endif; ?>
-
-        <form action="<?php echo $url_alias; ?>/circuitos" method="GET" class="card card-body shadow-sm mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="q" class="form-label">Pesquisa livre</label>
-                    <input type="search" id="q" name="q" class="form-control" value="<?php echo htmlspecialchars($data['filters']['q'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="Circuito, GP, país, cidade ou vencedor">
-                </div>
-                <div class="col-md-2">
-                    <label for="grande_premio" class="form-label">Grande Prémio (exato)</label>
-                    <input type="text" id="grande_premio" name="grande_premio" class="form-control" value="<?php echo htmlspecialchars($data['filters']['grande_premio'], ENT_QUOTES, 'UTF-8'); ?>">
-                </div>
-                <div class="col-md-2">
-                    <label for="pais" class="form-label">País (exato)</label>
-                    <input type="text" id="pais" name="pais" class="form-control" value="<?php echo htmlspecialchars($data['filters']['pais'], ENT_QUOTES, 'UTF-8'); ?>">
-                </div>
-                <div class="col-md-2">
-                    <label for="cidade" class="form-label">Cidade (exata)</label>
-                    <input type="text" id="cidade" name="cidade" class="form-control" value="<?php echo htmlspecialchars($data['filters']['cidade'], ENT_QUOTES, 'UTF-8'); ?>">
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-outline-danger">Pesquisar</button>
-                    <a href="<?php echo $url_alias; ?>/circuitos" class="btn btn-outline-secondary">Limpar</a>
-                </div>
-            </div>
-        </form>
-
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <table class="table table-striped table-hover m-0 align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Grande Prémio</th>
-                            <th>Circuito</th>
-                            <th>País / Cidade</th>
-                            <th>Extensão (km)</th>
-                            <th>Voltas</th>
-                            <th>Último Vencedor (Piloto)</th>
-                            <th>Equipa Vencedora</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($data['circuitos'])): ?>
-                            <?php foreach ($data['circuitos'] as $c): ?>
-                                <tr>
-                                    <td><?php echo (int) $c['id']; ?></td>
-                                    <td class="fw-bold text-danger"><?php echo htmlspecialchars($c['grande_premio'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($c['pais'] . ' (' . $c['cidade'] . ')', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo number_format($c['extensao_km'], 3, ',', '.'); ?> km</td>
-                                    <td><?php echo (int) $c['num_voltas']; ?></td>
-                                    <td><?php echo htmlspecialchars($c['piloto_vencedor'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($c['construtor_vencedor'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="text-nowrap">
-                                        <a href="<?php echo $url_alias; ?>/circuitos/update/<?php echo (int) $c['id']; ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                        <form action="<?php echo $url_alias; ?>/circuitos/delete/<?php echo (int) $c['id']; ?>" method="POST" class="d-inline" onsubmit="return confirm('Eliminar este circuito?');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="9" class="text-center py-4">Nenhum circuito encontrado na base de dados.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-12 col-sm-4 col-lg-2">
+            <label for="grande_premio" class="form-label">Grande Prémio (exato)</label>
+            <input type="text" id="grande_premio" name="grande_premio" class="form-control" value="<?php echo e($data['filters']['grande_premio']); ?>">
+        </div>
+        <div class="col-6 col-sm-4 col-lg-2">
+            <label for="pais" class="form-label">País (exato)</label>
+            <input type="text" id="pais" name="pais" class="form-control" value="<?php echo e($data['filters']['pais']); ?>">
+        </div>
+        <div class="col-6 col-sm-4 col-lg-2">
+            <label for="cidade" class="form-label">Cidade (exata)</label>
+            <input type="text" id="cidade" name="cidade" class="form-control" value="<?php echo e($data['filters']['cidade']); ?>">
+        </div>
+        <div class="col-12 col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-danger">Pesquisar</button>
+            <a href="<?php echo url('circuitos'); ?>" class="btn btn-outline-secondary">Limpar</a>
         </div>
     </div>
+</form>
 
-</body>
-</html>
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover m-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Grande Prémio</th>
+                    <th>Circuito</th>
+                    <th>País / Cidade</th>
+                    <th>Extensão</th>
+                    <th>Voltas</th>
+                    <th>Piloto Vencedor</th>
+                    <th>Equipa Vencedora</th>
+                    <?php if ($podeEditar): ?><th>Ações</th><?php endif; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($data['circuitos'] as $c): ?>
+                    <tr>
+                        <td><?php echo (int) $c['id']; ?></td>
+                        <td class="fw-bold text-danger"><?php echo e($c['grande_premio']); ?></td>
+                        <td><?php echo e($c['nome']); ?></td>
+                        <td><?php echo e($c['pais'] . ' (' . $c['cidade'] . ')'); ?></td>
+                        <td class="text-nowrap"><?php echo number_format((float) $c['extensao_km'], 3, ',', '.'); ?> km</td>
+                        <td><?php echo (int) $c['num_voltas']; ?></td>
+                        <td><?php echo e($c['piloto_vencedor'] ?? 'N/D'); ?></td>
+                        <td><?php echo e($c['construtor_vencedor'] ?? 'N/D'); ?></td>
+                        <?php if ($podeEditar): ?>
+                            <td class="acoes">
+                                <a href="<?php echo url('circuitos/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form action="<?php echo url('circuitos/delete/' . (int) $c['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o <?php echo e($c['grande_premio']); ?>?">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($data['circuitos'])): ?>
+                    <tr>
+                        <td colspan="<?php echo $podeEditar ? 9 : 8; ?>" class="text-center py-4">Nenhum circuito encontrado.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>

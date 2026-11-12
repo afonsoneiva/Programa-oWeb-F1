@@ -1,21 +1,18 @@
 <?php
 namespace app\models;
 
-use app\core\Db;
+use app\core\Model;
 
-class Circuitos {
-    private $db;
-
-    public function __construct() {
-        $this->db = new Db();
-    }
+class Circuitos extends Model {
+    protected $table = 'circuitos';
 
     /**
-     * Obtém a lista completa de circuitos com os nomes do piloto e construtor vencedores
+     * Lista de circuitos com os nomes do piloto e construtor vencedores
+     * e filtros opcionais (q, grande_premio, pais, cidade).
      */
     public function getAll(array $filters = []) {
-        $sql = "SELECT c.*, 
-                       p.nome AS piloto_vencedor, 
+        $sql = "SELECT c.*,
+                       p.nome AS piloto_vencedor,
                        co.nome AS construtor_vencedor
                 FROM circuitos c
                 LEFT JOIN pilotos p ON c.piloto_vencedor_id = p.id
@@ -32,43 +29,19 @@ class Circuitos {
             }
         }
         if (($filters['q'] ?? '') !== '') {
-            $conditions[] = '(CAST(c.id AS CHAR) LIKE ? OR c.nome LIKE ? OR c.grande_premio LIKE ? OR c.pais LIKE ? OR c.cidade LIKE ? OR CAST(c.extensao_km AS CHAR) LIKE ? OR CAST(c.num_voltas AS CHAR) LIKE ? OR p.nome LIKE ? OR co.nome LIKE ?)';
-            $search = '%' . $filters['q'] . '%';
-            $types .= 'sssssssss';
-            array_push($values, $search, $search, $search, $search, $search, $search, $search, $search, $search);
+            $conditions[] = '(CAST(c.id AS CHAR) LIKE ? OR c.nome LIKE ? OR c.grande_premio LIKE ? OR c.pais LIKE ? OR c.cidade LIKE ?
+                              OR CAST(c.extensao_km AS CHAR) LIKE ? OR CAST(c.num_voltas AS CHAR) LIKE ? OR p.nome LIKE ? OR co.nome LIKE ?)';
+            $types .= str_repeat('s', 9);
+            array_push($values, ...array_fill(0, 9, '%' . $filters['q'] . '%'));
         }
 
-        if ($conditions) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        }
-        $sql .= ' ORDER BY c.id ASC';
-
-        return $this->db->execQuery($sql, $types === '' ? [] : [$types, $values]);
-    }
-
-    public function getById(int $id) {
-        $sql = "SELECT * FROM circuitos WHERE id = ?";
-        $result = $this->db->execQuery($sql, ['i', [$id]]);
-        return $result[0] ?? null;
+        return $this->select($sql, $conditions, $types, $values, 'c.id ASC');
     }
 
     public function create(array $data) {
         $sql = "INSERT INTO circuitos (nome, grande_premio, pais, cidade, extensao_km, num_voltas, piloto_vencedor_id, construtor_vencedor_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        return $this->db->execQuery(
-            $sql,
-            ['ssssdiii', [
-                $data['nome'],
-                $data['grande_premio'],
-                $data['pais'],
-                $data['cidade'],
-                $data['extensao_km'],
-                $data['num_voltas'],
-                $data['piloto_vencedor_id'],
-                $data['construtor_vencedor_id']
-            ]],
-            'circuitos'
-        );
+        return $this->db->execQuery($sql, ['ssssdiii', $this->valores($data)], $this->table);
     }
 
     public function update(int $id, array $data) {
@@ -76,25 +49,22 @@ class Circuitos {
                 SET nome = ?, grande_premio = ?, pais = ?, cidade = ?, extensao_km = ?, num_voltas = ?,
                     piloto_vencedor_id = ?, construtor_vencedor_id = ?
                 WHERE id = ?";
-        return $this->db->execQuery(
-            $sql,
-            ['ssssdiiii', [
-                $data['nome'],
-                $data['grande_premio'],
-                $data['pais'],
-                $data['cidade'],
-                $data['extensao_km'],
-                $data['num_voltas'],
-                $data['piloto_vencedor_id'],
-                $data['construtor_vencedor_id'],
-                $id
-            ]]
-        );
+        return $this->db->execQuery($sql, ['ssssdiiii', [...$this->valores($data), $id]]);
     }
 
-    public function delete(int $id) {
-        $sql = "DELETE FROM circuitos WHERE id = ?";
-        return $this->db->execQuery($sql, ['i', [$id]], 'circuitos');
+    /**
+     * Valores pela ordem das colunas usadas no INSERT/UPDATE.
+     */
+    private function valores(array $data): array {
+        return [
+            $data['nome'],
+            $data['grande_premio'],
+            $data['pais'],
+            $data['cidade'],
+            $data['extensao_km'],
+            $data['num_voltas'],
+            $data['piloto_vencedor_id'],
+            $data['construtor_vencedor_id']
+        ];
     }
 }
-?>

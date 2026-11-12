@@ -1,100 +1,69 @@
-<?php
-$teamColors = [
-    'McLaren-Mercedes' => '#FF8000',
-    'Ferrari' => '#DC0000',
-    'Red Bull Racing-Honda RBPT' => '#1E41FF',
-    'Mercedes' => '#00D2BE',
-    'Aston Martin Aramco-Mercedes' => '#006F62',
-    'Alpine-Renault' => '#0090FF',
-    'Haas-Ferrari' => '#B6BABD',
-    'Racing Bulls-Honda RBPT' => '#6692FF',
-    'Williams-Mercedes' => '#005AFF',
-    'Kick Sauber-Ferrari' => '#52E252',
-];
-?>
-<!doctype html>
-<html lang="pt">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo isset($data['titulo']) ? $data['titulo'] : 'Construtores F1'; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+<?php $podeEditar = (bool) auth_user(); ?>
 
-    <div class="container py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-danger">🛡️ Equipas / Construtores 2025</h1>
-            <div class="d-flex gap-2">
-                <a href="<?php echo $url_alias; ?>/construtores/create" class="btn btn-danger">Adicionar Construtor</a>
-                <a href="<?php echo $url_alias; ?>/" class="btn btn-outline-secondary">Voltar ao Início</a>
-            </div>
+<div class="cabecalho-pagina d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <h1 class="fw-bold text-danger m-0">🛡️ Equipas / Construtores 2025</h1>
+    <?php if ($podeEditar): ?>
+        <a href="<?php echo url('construtores/create'); ?>" class="btn btn-danger align-self-start align-self-sm-auto">Adicionar Construtor</a>
+    <?php endif; ?>
+</div>
+
+<form action="<?php echo url('construtores'); ?>" method="GET" class="card card-body shadow-sm mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-12 col-lg-6">
+            <label for="q" class="form-label">Pesquisa livre</label>
+            <input type="search" id="q" name="q" class="form-control" value="<?php echo e($data['filters']['q']); ?>" placeholder="Nome, país ou motor">
         </div>
-
-        <?php if (!empty($data['success'])): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($data['success'], ENT_QUOTES, 'UTF-8'); ?></div>
-        <?php endif; ?>
-
-        <form action="<?php echo $url_alias; ?>/construtores" method="GET" class="card card-body shadow-sm mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-6">
-                    <label for="q" class="form-label">Pesquisa livre</label>
-                    <input type="search" id="q" name="q" class="form-control" value="<?php echo htmlspecialchars($data['filters']['q'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nome, país ou motor">
-                </div>
-                <div class="col-md-2">
-                    <label for="pais" class="form-label">País (exato)</label>
-                    <input type="text" id="pais" name="pais" class="form-control" value="<?php echo htmlspecialchars($data['filters']['pais'], ENT_QUOTES, 'UTF-8'); ?>">
-                </div>
-                <div class="col-md-2">
-                    <label for="motor" class="form-label">Motor (exato)</label>
-                    <input type="text" id="motor" name="motor" class="form-control" value="<?php echo htmlspecialchars($data['filters']['motor'], ENT_QUOTES, 'UTF-8'); ?>">
-                </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-outline-danger">Pesquisar</button>
-                    <a href="<?php echo $url_alias; ?>/construtores" class="btn btn-outline-secondary">Limpar</a>
-                </div>
-            </div>
-        </form>
-
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <table class="table table-striped table-hover m-0 align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Nome da Equipa</th>
-                            <th>Nacionalidade</th>
-                            <th>Motor</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($data['construtores'])): ?>
-                            <?php foreach ($data['construtores'] as $c): ?>
-                                <tr>
-                                    <td><?php echo (int) $c['id']; ?></td>
-                                    <td class="fw-bold text-dark"><?php echo htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($c['pais'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <?php $teamColor = $teamColors[$c['nome'] ?? ''] ?? '#6C757D'; ?>
-                                    <td><span class="badge" style="background-color: <?php echo htmlspecialchars($teamColor, ENT_QUOTES, 'UTF-8'); ?>; color: #fff;"><?php echo htmlspecialchars($c['motor'] ?? 'N/D', ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                    <td class="text-nowrap">
-                                        <a href="<?php echo $url_alias; ?>/construtores/update/<?php echo (int) $c['id']; ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                        <form action="<?php echo $url_alias; ?>/construtores/delete/<?php echo (int) $c['id']; ?>" method="POST" class="d-inline" onsubmit="return confirm('Eliminar este construtor?');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="text-center py-4">Nenhum construtor encontrado na base de dados.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-6 col-lg-2">
+            <label for="pais" class="form-label">País (exato)</label>
+            <input type="text" id="pais" name="pais" class="form-control" value="<?php echo e($data['filters']['pais']); ?>">
+        </div>
+        <div class="col-6 col-lg-2">
+            <label for="motor" class="form-label">Motor (exato)</label>
+            <input type="text" id="motor" name="motor" class="form-control" value="<?php echo e($data['filters']['motor']); ?>">
+        </div>
+        <div class="col-12 col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-danger">Pesquisar</button>
+            <a href="<?php echo url('construtores'); ?>" class="btn btn-outline-secondary">Limpar</a>
         </div>
     </div>
+</form>
 
-</body>
-</html>
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover m-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nome da Equipa</th>
+                    <th>Nacionalidade</th>
+                    <th>Motor</th>
+                    <?php if ($podeEditar): ?><th>Ações</th><?php endif; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($data['construtores'] as $c): ?>
+                    <tr>
+                        <td><?php echo (int) $c['id']; ?></td>
+                        <td class="fw-bold"><?php echo e($c['nome']); ?></td>
+                        <td><?php echo e($c['pais']); ?></td>
+                        <td><span class="badge badge-equipa" style="background-color: <?php echo e($c['cor']); ?>;"><?php echo e($c['motor']); ?></span></td>
+                        <?php if ($podeEditar): ?>
+                            <td class="acoes">
+                                <a href="<?php echo url('construtores/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form action="<?php echo url('construtores/delete/' . (int) $c['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o construtor <?php echo e($c['nome']); ?>?">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($data['construtores'])): ?>
+                    <tr>
+                        <td colspan="<?php echo $podeEditar ? 5 : 4; ?>" class="text-center py-4">Nenhum construtor encontrado.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
