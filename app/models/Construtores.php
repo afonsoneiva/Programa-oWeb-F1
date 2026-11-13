@@ -97,7 +97,8 @@ class Construtores extends Model {
         if ($impedimentos) {
             return 'Não pode ser eliminada: tem ' . implode(' e ', $impedimentos) . '.';
         }
-        $ehAutor = $construtor['criado_por'] !== null && (int) $construtor['criado_por'] === (int) $utilizador['id'];
+        $criadoPor = $construtor['criado_por'] ?? null;
+        $ehAutor = $criadoPor !== null && (int) $criadoPor === (int) $utilizador['id'];
         if (($utilizador['perfil'] ?? '') !== 'admin' && !$ehAutor) {
             return 'Só podes eliminar equipas que tenhas criado.';
         }

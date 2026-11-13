@@ -65,7 +65,8 @@ class Pilotos extends Model {
         if ($vitorias > 0) {
             return 'Não pode ser eliminado: tem ' . $vitorias . ($vitorias === 1 ? ' vitória.' : ' vitórias.');
         }
-        $ehAutor = $piloto['criado_por'] !== null && (int) $piloto['criado_por'] === (int) $utilizador['id'];
+        $criadoPor = $piloto['criado_por'] ?? null;
+        $ehAutor = $criadoPor !== null && (int) $criadoPor === (int) $utilizador['id'];
         if (($utilizador['perfil'] ?? '') !== 'admin' && !$ehAutor) {
             return 'Só podes eliminar pilotos que tenhas criado.';
         }
