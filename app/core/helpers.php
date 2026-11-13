@@ -18,6 +18,15 @@ function url(string $caminho = ''): string {
 }
 
 /**
+ * URL de um ficheiro estático com a data de modificação como versão
+ * (?v=...), para o browser não usar uma cópia antiga em cache.
+ */
+function asset(string $caminho): string {
+    $versao = @filemtime($caminho);
+    return url($caminho) . ($versao ? '?v=' . $versao : '');
+}
+
+/**
  * Utilizador autenticado (array) ou null.
  */
 function auth_user() {

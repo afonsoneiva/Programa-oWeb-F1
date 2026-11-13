@@ -169,12 +169,19 @@ class Controller {
     if (is_admin()) {
       return true;
     }
+    $this->forbidden('Apenas administradores podem executar esta ação.');
+    return false;
+  }
+
+  /**
+   * Página de erro 403 com a mensagem indicada.
+   */
+  protected function forbidden(string $mensagem) {
     http_response_code(403);
     $this->view('erro', [
       'titulo' => 'Acesso negado',
-      'mensagem' => 'Apenas administradores podem executar esta ação.'
+      'mensagem' => $mensagem
     ]);
-    return false;
   }
 
   protected function validCsrf(): bool {

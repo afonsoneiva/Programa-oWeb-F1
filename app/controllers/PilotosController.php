@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\models\Pilotos;
 
 class PilotosController extends Controller {
 
@@ -16,7 +17,9 @@ class PilotosController extends Controller {
 
         $this->view('pilotos/index', [
             'titulo' => 'Pilotos 2025',
-            'pilotos' => $this->model('Pilotos')->getAll($filters),
+            'pilotos' => array_map(function ($piloto) use ($utilizador) {
+                return $piloto + ['motivo_bloqueio' => Pilotos::motivoBloqueio($piloto, $utilizador)];
+            }, $this->model('Pilotos')->getAll($filters)),
             'filters' => $filters,
             'construtores' => $this->model('Construtores')->getAll(),
             'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('pilotos', (int) $utilizador['id']) : [],
@@ -42,9 +45,7 @@ class PilotosController extends Controller {
     }
 
     public function delete($id = null) {
-        if (!$this->requireAdmin()) {
-            return;
-        }
+        $this->requireLogin();
         if (!$this->isPost()) {
             $this->methodNotAllowed();
             return;
@@ -52,8 +53,16 @@ class PilotosController extends Controller {
 
         $id = $this->validId($id);
         $pilotosModel = $this->model('Pilotos');
-        if ($id === null || !$pilotosModel->getById($id)) {
+        $piloto = $id === null ? null : $pilotosModel->getById($id);
+        if (!$piloto) {
             $this->pageNotFound();
+            return;
+        }
+
+        $piloto['vitorias'] = $pilotosModel->vitorias($id);
+        $motivo = Pilotos::motivoBloqueio($piloto, $this->currentUser());
+        if ($motivo !== null) {
+            $this->forbidden($motivo);
             return;
         }
 
@@ -100,6 +109,7 @@ class PilotosController extends Controller {
 
             if (!$errors) {
                 if ($id === null) {
+                    $piloto['criado_por'] = (int) $this->currentUser()['id'];
                     $pilotosModel->create($piloto);
                     $this->redirect('pilotos?success=created');
                 }

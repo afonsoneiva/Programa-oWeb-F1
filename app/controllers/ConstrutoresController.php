@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\models\Construtores;
 
 class ConstrutoresController extends Controller {
 
@@ -15,7 +16,9 @@ class ConstrutoresController extends Controller {
 
         $this->view('construtores/index', [
             'titulo' => 'Equipas e Construtores 2025',
-            'construtores' => $this->model('Construtores')->getAll($filters),
+            'construtores' => array_map(function ($construtor) use ($utilizador) {
+                return $construtor + ['motivo_bloqueio' => Construtores::motivoBloqueio($construtor, $utilizador)];
+            }, $this->model('Construtores')->getAll($filters)),
             'filters' => $filters,
             'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('construtores', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Construtor')
@@ -40,9 +43,7 @@ class ConstrutoresController extends Controller {
     }
 
     public function delete($id = null) {
-        if (!$this->requireAdmin()) {
-            return;
-        }
+        $this->requireLogin();
         if (!$this->isPost()) {
             $this->methodNotAllowed();
             return;
@@ -50,8 +51,16 @@ class ConstrutoresController extends Controller {
 
         $id = $this->validId($id);
         $construtoresModel = $this->model('Construtores');
-        if ($id === null || !$construtoresModel->getById($id)) {
+        $construtor = $id === null ? null : $construtoresModel->getById($id);
+        if (!$construtor) {
             $this->pageNotFound();
+            return;
+        }
+
+        $construtor = $construtoresModel->comContagens($construtor);
+        $motivo = Construtores::motivoBloqueio($construtor, $this->currentUser());
+        if ($motivo !== null) {
+            $this->forbidden($motivo);
             return;
         }
 
@@ -82,6 +91,7 @@ class ConstrutoresController extends Controller {
 
             if (!$errors) {
                 if ($id === null) {
+                    $construtor['criado_por'] = (int) $this->currentUser()['id'];
                     $construtoresModel->create($construtor);
                     $this->redirect('construtores?success=created');
                 }

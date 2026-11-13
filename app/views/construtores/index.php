@@ -65,11 +65,15 @@
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('construtores/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                <?php if (is_admin()): ?>
+                                <?php if ($c['motivo_bloqueio'] === null): ?>
                                 <form action="<?php echo url('construtores/delete/' . (int) $c['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o construtor <?php echo e($c['nome']); ?>?">
                                     <?php echo csrf_field(); ?>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                 </form>
+                                <?php else: ?>
+                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="<?php echo e($c['motivo_bloqueio']); ?>">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-bloqueado" style="pointer-events: none;" disabled aria-label="Eliminar (bloqueado): <?php echo e($c['motivo_bloqueio']); ?>">🔒 Eliminar</button>
+                                </span>
                                 <?php endif; ?>
                             </td>
                         <?php endif; ?>

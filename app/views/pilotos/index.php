@@ -74,11 +74,15 @@
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('pilotos/update/' . (int) $p['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                <?php if (is_admin()): ?>
+                                <?php if ($p['motivo_bloqueio'] === null): ?>
                                 <form action="<?php echo url('pilotos/delete/' . (int) $p['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o piloto <?php echo e($p['nome']); ?>?">
                                     <?php echo csrf_field(); ?>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                 </form>
+                                <?php else: ?>
+                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="<?php echo e($p['motivo_bloqueio']); ?>">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-bloqueado" style="pointer-events: none;" disabled aria-label="Eliminar (bloqueado): <?php echo e($p['motivo_bloqueio']); ?>">🔒 Eliminar</button>
+                                </span>
                                 <?php endif; ?>
                             </td>
                         <?php endif; ?>

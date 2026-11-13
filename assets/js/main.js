@@ -12,4 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Tooltips do Bootstrap (ex.: motivo pelo qual o botão "Eliminar" está bloqueado)
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((elemento) => {
+        new bootstrap.Tooltip(elemento);
+    });
 });

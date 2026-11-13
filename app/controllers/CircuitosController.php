@@ -29,7 +29,9 @@ class CircuitosController extends Controller {
     }
 
     public function update($id = null) {
-        $this->requireLogin();
+        if (!$this->requireAdmin()) {
+            return;
+        }
         $id = $this->validId($id);
         $circuito = $id === null ? null : $this->model('Circuitos')->getById($id);
         if (!$circuito) {
@@ -38,26 +40,6 @@ class CircuitosController extends Controller {
         }
 
         $this->showForm($id, $circuito);
-    }
-
-    public function delete($id = null) {
-        if (!$this->requireAdmin()) {
-            return;
-        }
-        if (!$this->isPost()) {
-            $this->methodNotAllowed();
-            return;
-        }
-
-        $id = $this->validId($id);
-        $circuitosModel = $this->model('Circuitos');
-        if ($id === null || !$circuitosModel->getById($id)) {
-            $this->pageNotFound();
-            return;
-        }
-
-        $circuitosModel->delete($id);
-        $this->redirect('circuitos?success=deleted');
     }
 
     /**

@@ -127,6 +127,15 @@ CREATE TABLE utilizadores (
 INSERT INTO utilizadores (nome, email, password, perfil) VALUES
 ('Admin F1', 'admin@f1.pt', '$2y$10$QJ41cj/iNeFwODN1L./yZuddqq8LlJRBDCVqKS/msIOfeISkCYfwe', 'admin');
 
+-- Autor de cada piloto/equipa (NULL nos dados iniciais e se o utilizador for apagado).
+-- Usado para saber quem pode eliminar o registo.
+ALTER TABLE construtores
+    ADD COLUMN criado_por INT NULL,
+    ADD CONSTRAINT fk_construtor_criado_por FOREIGN KEY (criado_por) REFERENCES utilizadores(id) ON DELETE SET NULL;
+ALTER TABLE pilotos
+    ADD COLUMN criado_por INT NULL,
+    ADD CONSTRAINT fk_piloto_criado_por FOREIGN KEY (criado_por) REFERENCES utilizadores(id) ON DELETE SET NULL;
+
 -- 5. TABELAS DE FAVORITOS (cada utilizador gere os seus próprios favoritos)
 CREATE TABLE utilizador_pilotos_favoritos (
     id INT AUTO_INCREMENT PRIMARY KEY,

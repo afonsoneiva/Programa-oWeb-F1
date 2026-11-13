@@ -15,7 +15,7 @@ $menu = [
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo e($data['titulo'] ?? 'Portal F1'); ?> | Portal F1</title>
     <link rel="stylesheet" href="<?php echo url('assets/bootstrap-5.1.3-dist/css/bootstrap.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo url('assets/css/main.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset('assets/css/main.css'); ?>">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 

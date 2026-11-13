@@ -1,8 +1,11 @@
-<?php $podeEditar = (bool) auth_user(); ?>
+<?php
+$podeCriar = (bool) auth_user();
+$podeEditar = is_admin(); // só o administrador edita circuitos; ninguém os elimina
+?>
 
 <div class="cabecalho-pagina d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
     <h1 class="fw-bold text-danger m-0">🏁 Calendário de Circuitos 2025</h1>
-    <?php if ($podeEditar): ?>
+    <?php if ($podeCriar): ?>
         <a href="<?php echo url('circuitos/create'); ?>" class="btn btn-danger align-self-start align-self-sm-auto">Adicionar Circuito</a>
     <?php endif; ?>
 </div>
@@ -77,12 +80,9 @@
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('circuitos/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                <?php if (is_admin()): ?>
-                                <form action="<?php echo url('circuitos/delete/' . (int) $c['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o <?php echo e($c['grande_premio']); ?>?">
-                                    <?php echo csrf_field(); ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                </form>
-                                <?php endif; ?>
+                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Os circuitos fazem parte do calendário e não podem ser eliminados.">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-bloqueado" style="pointer-events: none;" disabled aria-label="Eliminar (bloqueado): os circuitos não podem ser eliminados">🔒 Eliminar</button>
+                                </span>
                             </td>
                         <?php endif; ?>
                     </tr>

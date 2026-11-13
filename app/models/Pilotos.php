@@ -11,7 +11,8 @@ class Pilotos extends Model {
      * (q, nacionalidade, construtor_id).
      */
     public function getAll(array $filters = []) {
-        $sql = "SELECT p.*, c.nome AS nome_construtor
+        $sql = "SELECT p.*, c.nome AS nome_construtor,
+                       (SELECT COUNT(*) FROM circuitos ci WHERE ci.piloto_vencedor_id = p.id) AS vitorias
                 FROM pilotos p
                 LEFT JOIN construtores c ON p.construtor_id = c.id";
         $conditions = [];
@@ -40,11 +41,46 @@ class Pilotos extends Model {
         }, $pilotos);
     }
 
+    /**
+     * Número de corridas ganhas pelo piloto.
+     */
+    public function vitorias(int $id): int {
+        $result = $this->db->execQuery("SELECT COUNT(*) AS total FROM circuitos WHERE piloto_vencedor_id = ?", ['i', [$id]]);
+        return (int) ($result[0]['total'] ?? 0);
+    }
+
+    /**
+     * Regra de eliminação de um piloto (o array tem de incluir 'vitorias'):
+     *  - nunca se tiver vitórias;
+     *  - o administrador pode apagar qualquer outro;
+     *  - o utilizador normal só pode apagar os que criou.
+     *
+     * @return string|null  motivo pelo qual não pode ser eliminado (null = pode)
+     */
+    public static function motivoBloqueio(array $piloto, $utilizador) {
+        if (!$utilizador) {
+            return 'Inicia sessão para eliminar pilotos.';
+        }
+        $vitorias = (int) $piloto['vitorias'];
+        if ($vitorias > 0) {
+            return 'Não pode ser eliminado: tem ' . $vitorias . ($vitorias === 1 ? ' vitória.' : ' vitórias.');
+        }
+        $ehAutor = $piloto['criado_por'] !== null && (int) $piloto['criado_por'] === (int) $utilizador['id'];
+        if (($utilizador['perfil'] ?? '') !== 'admin' && !$ehAutor) {
+            return 'Só podes eliminar pilotos que tenhas criado.';
+        }
+        return null;
+    }
+
+    public static function podeApagar(array $piloto, $utilizador): bool {
+        return self::motivoBloqueio($piloto, $utilizador) === null;
+    }
+
     public function create(array $data) {
-        $sql = "INSERT INTO pilotos (nome, numero, nacionalidade, construtor_id) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO pilotos (nome, numero, nacionalidade, construtor_id, criado_por) VALUES (?, ?, ?, ?, ?)";
         return $this->db->execQuery(
             $sql,
-            ['sisi', [$data['nome'], $data['numero'], $data['nacionalidade'], $data['construtor_id']]],
+            ['sisii', [$data['nome'], $data['numero'], $data['nacionalidade'], $data['construtor_id'], $data['criado_por']]],
             $this->table
         );
     }

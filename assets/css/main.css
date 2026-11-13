@@ -135,3 +135,13 @@ footer.bg-dark {
 .acoes {
     white-space: nowrap;
 }
+
+/* Botão "Eliminar" bloqueado: o span à volta recebe o hover (botões disabled não recebem eventos) */
+.btn-bloqueado {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+[data-bs-toggle="tooltip"]:has(.btn-bloqueado) {
+    cursor: not-allowed;
+}

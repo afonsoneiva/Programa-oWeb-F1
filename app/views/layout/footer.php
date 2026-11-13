@@ -7,6 +7,6 @@
 </footer>
 
 <script src="<?php echo url('assets/bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js'); ?>"></script>
-<script src="<?php echo url('assets/js/main.js'); ?>"></script>
+<script src="<?php echo asset('assets/js/main.js'); ?>"></script>
 </body>
 </html>
