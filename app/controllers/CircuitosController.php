@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\models\Circuitos;
 
 class CircuitosController extends Controller {
 
@@ -16,7 +17,9 @@ class CircuitosController extends Controller {
 
         $this->view('circuitos/index', [
             'titulo' => 'Calendário de Circuitos 2025',
-            'circuitos' => $this->model('Circuitos')->getAll($filters),
+            'circuitos' => array_map(function ($circuito) use ($utilizador) {
+                return $circuito + ['motivo_bloqueio' => Circuitos::motivoBloqueio($circuito, $utilizador)];
+            }, $this->model('Circuitos')->getAll($filters)),
             'filters' => $filters,
             'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('circuitos', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Circuito')
@@ -24,7 +27,9 @@ class CircuitosController extends Controller {
     }
 
     public function create() {
-        $this->requireLogin();
+        if (!$this->requireAdmin()) {
+            return;
+        }
         $this->showForm(null);
     }
 
@@ -40,6 +45,33 @@ class CircuitosController extends Controller {
         }
 
         $this->showForm($id, $circuito);
+    }
+
+    public function delete($id = null) {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+        if (!$this->isPost()) {
+            $this->methodNotAllowed();
+            return;
+        }
+
+        $id = $this->validId($id);
+        $circuitosModel = $this->model('Circuitos');
+        $circuito = $id === null ? null : $circuitosModel->getById($id);
+        if (!$circuito) {
+            $this->pageNotFound();
+            return;
+        }
+
+        $motivo = Circuitos::motivoBloqueio($circuito, $this->currentUser());
+        if ($motivo !== null) {
+            $this->forbidden($motivo);
+            return;
+        }
+
+        $circuitosModel->delete($id);
+        $this->redirect('circuitos?success=deleted');
     }
 
     /**

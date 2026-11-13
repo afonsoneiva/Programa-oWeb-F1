@@ -1,11 +1,8 @@
-<?php
-$podeCriar = (bool) auth_user();
-$podeEditar = is_admin(); // só o administrador edita circuitos; ninguém os elimina
-?>
+<?php $podeEditar = is_admin(); // só o administrador cria, edita e elimina circuitos ?>
 
 <div class="cabecalho-pagina d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
     <h1 class="fw-bold text-danger m-0">🏁 Calendário de Circuitos 2025</h1>
-    <?php if ($podeCriar): ?>
+    <?php if ($podeEditar): ?>
         <a href="<?php echo url('circuitos/create'); ?>" class="btn btn-danger align-self-start align-self-sm-auto">Adicionar Circuito</a>
     <?php endif; ?>
 </div>
@@ -80,9 +77,16 @@ $podeEditar = is_admin(); // só o administrador edita circuitos; ninguém os el
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('circuitos/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="Os circuitos fazem parte do calendário e não podem ser eliminados.">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-bloqueado" style="pointer-events: none;" disabled aria-label="Eliminar (bloqueado): os circuitos não podem ser eliminados">🔒 Eliminar</button>
+                                <?php if ($c['motivo_bloqueio'] === null): ?>
+                                <form action="<?php echo url('circuitos/delete/' . (int) $c['id']); ?>" method="POST" class="d-inline" data-confirm="Eliminar o <?php echo e($c['grande_premio']); ?>?">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
+                                <?php else: ?>
+                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="<?php echo e($c['motivo_bloqueio']); ?>">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-bloqueado" style="pointer-events: none;" disabled aria-label="Eliminar (bloqueado): <?php echo e($c['motivo_bloqueio']); ?>">🔒 Eliminar</button>
                                 </span>
+                                <?php endif; ?>
                             </td>
                         <?php endif; ?>
                     </tr>

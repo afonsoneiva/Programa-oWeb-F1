@@ -96,6 +96,31 @@ class Circuitos extends Model {
         ]);
     }
 
+    /**
+     * Regra de eliminação de um circuito:
+     *  - só o administrador pode eliminar;
+     *  - apenas se ainda não tiver resultados (piloto ou equipa vencedora) registados.
+     *
+     * @return string|null  motivo pelo qual não pode ser eliminado (null = pode)
+     */
+    public static function motivoBloqueio(array $circuito, $utilizador) {
+        if (($utilizador['perfil'] ?? '') !== 'admin') {
+            return 'Apenas administradores podem eliminar circuitos.';
+        }
+        $temPiloto = $circuito['piloto_vencedor_id'] !== null;
+        $temEquipa = $circuito['construtor_vencedor_id'] !== null;
+        if ($temPiloto && $temEquipa) {
+            return 'Não pode ser eliminado: já tem piloto e equipa vencedores registados.';
+        }
+        if ($temPiloto) {
+            return 'Não pode ser eliminado: já tem piloto vencedor registado.';
+        }
+        if ($temEquipa) {
+            return 'Não pode ser eliminado: já tem equipa vencedora registada.';
+        }
+        return null;
+    }
+
     public function create(array $data) {
         $sql = "INSERT INTO circuitos (nome, grande_premio, pais, cidade, extensao_km, num_voltas, piloto_vencedor_id, construtor_vencedor_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";

@@ -146,12 +146,14 @@ $km = function ($valor) {
             <div class="d-flex flex-wrap gap-2">
                 <a href="<?php echo url('pilotos/create'); ?>" class="btn btn-danger">+ Piloto</a>
                 <a href="<?php echo url('construtores/create'); ?>" class="btn btn-outline-light">+ Equipa</a>
-                <a href="<?php echo url('circuitos/create'); ?>" class="btn btn-outline-light">+ Circuito</a>
+                <?php if (is_admin()): ?>
+                    <a href="<?php echo url('circuitos/create'); ?>" class="btn btn-outline-light">+ Circuito</a>
+                <?php endif; ?>
             </div>
         <?php else: ?>
             <div>
                 <h2 class="h5 fw-bold mb-1">Queres contribuir?</h2>
-                <p class="text-white-50 mb-0">Cria uma conta para adicionar e editar pilotos, equipas e circuitos.</p>
+                <p class="text-white-50 mb-0">Cria uma conta para adicionar e editar pilotos e equipas.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a href="<?php echo url('auth/register'); ?>" class="btn btn-danger">Criar Conta</a>
