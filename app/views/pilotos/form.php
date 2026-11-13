@@ -13,7 +13,14 @@
         </div>
         <div class="col-md-6 mb-3">
             <label for="nacionalidade" class="form-label">Nacionalidade</label>
-            <input type="text" id="nacionalidade" name="nacionalidade" class="form-control" maxlength="50" required value="<?php echo e($data['piloto']['nacionalidade']); ?>">
+            <select id="nacionalidade" name="nacionalidade" class="form-select" required>
+                <option value="">Seleciona uma nacionalidade</option>
+                <?php foreach ($data['nacionalidades'] as $nacionalidade): ?>
+                    <option value="<?php echo e($nacionalidade); ?>" <?php echo $data['piloto']['nacionalidade'] === $nacionalidade ? 'selected' : ''; ?>>
+                        <?php echo e($nacionalidade); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
     </div>
     <div class="mb-3">

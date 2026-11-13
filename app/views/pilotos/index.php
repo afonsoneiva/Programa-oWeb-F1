@@ -15,7 +15,14 @@
         </div>
         <div class="col-6 col-lg-3">
             <label for="nacionalidade" class="form-label">Nacionalidade (exata)</label>
-            <input type="text" id="nacionalidade" name="nacionalidade" class="form-control" value="<?php echo e($data['filters']['nacionalidade']); ?>">
+            <select id="nacionalidade" name="nacionalidade" class="form-select">
+                <option value="">Todas</option>
+                <?php foreach ($data['nacionalidades'] as $nacionalidade): ?>
+                    <option value="<?php echo e($nacionalidade); ?>" <?php echo $data['filters']['nacionalidade'] === $nacionalidade ? 'selected' : ''; ?>>
+                        <?php echo e($nacionalidade); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-6 col-lg-2">
             <label for="construtor_id" class="form-label">Equipa</label>

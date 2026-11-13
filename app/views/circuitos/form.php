@@ -15,7 +15,14 @@
     <div class="row">
         <div class="col-md-6 mb-3">
             <label for="pais" class="form-label">País</label>
-            <input type="text" id="pais" name="pais" class="form-control" maxlength="50" required value="<?php echo e($data['circuito']['pais']); ?>">
+            <select id="pais" name="pais" class="form-select" required>
+                <option value="">Seleciona um país</option>
+                <?php foreach ($data['paises'] as $pais): ?>
+                    <option value="<?php echo e($pais); ?>" <?php echo $data['circuito']['pais'] === $pais ? 'selected' : ''; ?>>
+                        <?php echo e($pais); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-md-6 mb-3">
             <label for="cidade" class="form-label">Cidade</label>

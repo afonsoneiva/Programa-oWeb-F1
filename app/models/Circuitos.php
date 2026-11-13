@@ -5,6 +5,7 @@ use app\core\Model;
 
 class Circuitos extends Model {
     protected $table = 'circuitos';
+    protected $distinctOptionFields = ['grande_premio', 'pais', 'cidade'];
 
     /**
      * Lista de circuitos com os nomes do piloto e construtor vencedores

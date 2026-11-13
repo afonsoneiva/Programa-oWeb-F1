@@ -11,6 +11,7 @@ abstract class Model {
 
     /** Nome da tabela associada ao model (definido em cada subclasse). */
     protected $table;
+    protected $distinctOptionFields = [];
 
     public function __construct() {
         $this->db = new Db();
@@ -24,6 +25,19 @@ abstract class Model {
     public function count(): int {
         $result = $this->db->execQuery("SELECT COUNT(*) AS total FROM {$this->table}");
         return (int) ($result[0]['total'] ?? 0);
+    }
+
+    public function distinctOptions(string $field): array {
+        if (!in_array($field, $this->distinctOptionFields, true)) {
+            throw new \InvalidArgumentException('Campo de opções inválido: ' . $field);
+        }
+
+        $result = $this->db->execQuery(
+            "SELECT DISTINCT `{$field}` AS option_value FROM `{$this->table}`
+             WHERE `{$field}` IS NOT NULL AND `{$field}` <> ''
+             ORDER BY `{$field}` ASC"
+        );
+        return array_column($result, 'option_value');
     }
 
     public function delete(int $id) {

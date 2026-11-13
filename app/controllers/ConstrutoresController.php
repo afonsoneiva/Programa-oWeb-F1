@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\core\Geografia;
 use app\models\Construtores;
 
 class ConstrutoresController extends Controller {
@@ -13,13 +14,21 @@ class ConstrutoresController extends Controller {
             'pais' => $this->queryString('pais'),
             'motor' => $this->queryString('motor')
         ];
+        $construtoresModel = $this->model('Construtores');
+        $paises = array_values(array_unique(array_merge(
+            Geografia::paises(),
+            $construtoresModel->distinctOptions('pais')
+        )));
+        sort($paises, SORT_NATURAL | SORT_FLAG_CASE);
 
         $this->view('construtores/index', [
             'titulo' => 'Equipas e Construtores 2025',
             'construtores' => array_map(function ($construtor) use ($utilizador) {
                 return $construtor + ['motivo_bloqueio' => Construtores::motivoBloqueio($construtor, $utilizador)];
-            }, $this->model('Construtores')->getAll($filters)),
+            }, $construtoresModel->getAll($filters)),
             'filters' => $filters,
+            'paises' => $paises,
+            'motores' => $construtoresModel->distinctOptions('motor'),
             'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('construtores', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Construtor')
         ]);
@@ -75,6 +84,7 @@ class ConstrutoresController extends Controller {
         $construtoresModel = $this->model('Construtores');
         $errors = [];
         $construtor = $construtor ?? ['nome' => '', 'pais' => '', 'motor' => ''];
+        $paises = Geografia::incluirValorAtual(Geografia::paises(), $construtor['pais']);
 
         if ($this->isPost()) {
             $construtor = [
@@ -88,6 +98,9 @@ class ConstrutoresController extends Controller {
                 'pais' => ['País', 50],
                 'motor' => ['Motor', 50]
             ]);
+            if (!in_array($construtor['pais'], $paises, true)) {
+                $errors[] = 'Seleciona um país válido.';
+            }
 
             if (!$errors) {
                 if ($id === null) {
@@ -103,6 +116,7 @@ class ConstrutoresController extends Controller {
         $this->view('construtores/form', [
             'titulo' => $id === null ? 'Adicionar Construtor' : 'Editar Construtor',
             'construtor' => $construtor,
+            'paises' => $paises,
             'errors' => $errors,
             'action' => url('construtores/' . ($id === null ? 'create' : 'update/' . $id))
         ]);

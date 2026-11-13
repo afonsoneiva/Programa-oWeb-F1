@@ -15,11 +15,25 @@
         </div>
         <div class="col-6 col-lg-2">
             <label for="pais" class="form-label">País (exato)</label>
-            <input type="text" id="pais" name="pais" class="form-control" value="<?php echo e($data['filters']['pais']); ?>">
+            <select id="pais" name="pais" class="form-select">
+                <option value="">Todos</option>
+                <?php foreach ($data['paises'] as $pais): ?>
+                    <option value="<?php echo e($pais); ?>" <?php echo $data['filters']['pais'] === $pais ? 'selected' : ''; ?>>
+                        <?php echo e($pais); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-6 col-lg-2">
             <label for="motor" class="form-label">Motor (exato)</label>
-            <input type="text" id="motor" name="motor" class="form-control" value="<?php echo e($data['filters']['motor']); ?>">
+            <select id="motor" name="motor" class="form-select">
+                <option value="">Todos</option>
+                <?php foreach ($data['motores'] as $motor): ?>
+                    <option value="<?php echo e($motor); ?>" <?php echo $data['filters']['motor'] === $motor ? 'selected' : ''; ?>>
+                        <?php echo e($motor); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-12 col-lg-2 d-flex gap-2">
             <button type="submit" class="btn btn-outline-danger">Pesquisar</button>

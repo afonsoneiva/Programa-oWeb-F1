@@ -15,15 +15,36 @@
         </div>
         <div class="col-12 col-sm-4 col-lg-2">
             <label for="grande_premio" class="form-label">Grande Prémio (exato)</label>
-            <input type="text" id="grande_premio" name="grande_premio" class="form-control" value="<?php echo e($data['filters']['grande_premio']); ?>">
+            <select id="grande_premio" name="grande_premio" class="form-select">
+                <option value="">Todos</option>
+                <?php foreach ($data['grandes_premios'] as $grandePremio): ?>
+                    <option value="<?php echo e($grandePremio); ?>" <?php echo $data['filters']['grande_premio'] === $grandePremio ? 'selected' : ''; ?>>
+                        <?php echo e($grandePremio); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-6 col-sm-4 col-lg-2">
             <label for="pais" class="form-label">País (exato)</label>
-            <input type="text" id="pais" name="pais" class="form-control" value="<?php echo e($data['filters']['pais']); ?>">
+            <select id="pais" name="pais" class="form-select">
+                <option value="">Todos</option>
+                <?php foreach ($data['paises'] as $pais): ?>
+                    <option value="<?php echo e($pais); ?>" <?php echo $data['filters']['pais'] === $pais ? 'selected' : ''; ?>>
+                        <?php echo e($pais); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-6 col-sm-4 col-lg-2">
             <label for="cidade" class="form-label">Cidade (exata)</label>
-            <input type="text" id="cidade" name="cidade" class="form-control" value="<?php echo e($data['filters']['cidade']); ?>">
+            <select id="cidade" name="cidade" class="form-select">
+                <option value="">Todas</option>
+                <?php foreach ($data['cidades'] as $cidade): ?>
+                    <option value="<?php echo e($cidade); ?>" <?php echo $data['filters']['cidade'] === $cidade ? 'selected' : ''; ?>>
+                        <?php echo e($cidade); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="col-12 col-lg-2 d-flex gap-2">
             <button type="submit" class="btn btn-outline-danger">Pesquisar</button>

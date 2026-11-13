@@ -5,6 +5,7 @@ use app\core\Model;
 
 class Pilotos extends Model {
     protected $table = 'pilotos';
+    protected $distinctOptionFields = ['nacionalidade'];
 
     /**
      * Lista de pilotos (com o nome da equipa) e filtros opcionais

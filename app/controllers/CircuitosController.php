@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\core\Geografia;
 use app\models\Circuitos;
 
 class CircuitosController extends Controller {
@@ -14,13 +15,22 @@ class CircuitosController extends Controller {
             'pais' => $this->queryString('pais'),
             'cidade' => $this->queryString('cidade')
         ];
+        $circuitosModel = $this->model('Circuitos');
+        $paises = array_values(array_unique(array_merge(
+            Geografia::paises(),
+            $circuitosModel->distinctOptions('pais')
+        )));
+        sort($paises, SORT_NATURAL | SORT_FLAG_CASE);
 
         $this->view('circuitos/index', [
             'titulo' => 'Calendário de Circuitos 2025',
             'circuitos' => array_map(function ($circuito) use ($utilizador) {
                 return $circuito + ['motivo_bloqueio' => Circuitos::motivoBloqueio($circuito, $utilizador)];
-            }, $this->model('Circuitos')->getAll($filters)),
+            }, $circuitosModel->getAll($filters)),
             'filters' => $filters,
+            'grandes_premios' => $circuitosModel->distinctOptions('grande_premio'),
+            'paises' => $paises,
+            'cidades' => $circuitosModel->distinctOptions('cidade'),
             'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('circuitos', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Circuito')
         ]);
@@ -92,6 +102,7 @@ class CircuitosController extends Controller {
             'piloto_vencedor_id' => null,
             'construtor_vencedor_id' => null
         ];
+        $paises = Geografia::incluirValorAtual(Geografia::paises(), $circuito['pais']);
 
         if ($this->isPost()) {
             $numeroVoltas = filter_var($_POST['num_voltas'] ?? null, FILTER_VALIDATE_INT);
@@ -117,6 +128,9 @@ class CircuitosController extends Controller {
                 'pais' => ['País', 50],
                 'cidade' => ['Cidade', 50]
             ]);
+            if (!in_array($circuito['pais'], $paises, true)) {
+                $errors[] = 'Seleciona um país válido.';
+            }
             if (!preg_match('/^\d+(?:\.\d{1,3})?$/D', $circuito['extensao_km']) || (float) $circuito['extensao_km'] <= 0) {
                 $errors[] = 'Indica uma extensão válida superior a zero.';
             } elseif ((float) $circuito['extensao_km'] >= 10) {
@@ -146,6 +160,7 @@ class CircuitosController extends Controller {
         $this->view('circuitos/form', [
             'titulo' => $id === null ? 'Adicionar Circuito' : 'Editar Circuito',
             'circuito' => $circuito,
+            'paises' => $paises,
             'pilotos' => $pilotosModel->getAll(),
             'construtores' => $construtoresModel->getAll(),
             'errors' => $errors,

@@ -5,6 +5,7 @@ use app\core\Model;
 
 class Construtores extends Model {
     protected $table = 'construtores';
+    protected $distinctOptionFields = ['pais', 'motor'];
 
     /** Cor oficial de cada equipa (usada nos badges das listagens). */
     private const CORES = [

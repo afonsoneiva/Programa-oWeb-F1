@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\core\Geografia;
 use app\models\Pilotos;
 
 class PilotosController extends Controller {
@@ -14,13 +15,20 @@ class PilotosController extends Controller {
             'nacionalidade' => $this->queryString('nacionalidade'),
             'construtor_id' => $construtorId === '' ? '' : ($this->validId($construtorId) ?? '')
         ];
+        $pilotosModel = $this->model('Pilotos');
+        $nacionalidades = array_values(array_unique(array_merge(
+            Geografia::nacionalidades(),
+            $pilotosModel->distinctOptions('nacionalidade')
+        )));
+        sort($nacionalidades, SORT_NATURAL | SORT_FLAG_CASE);
 
         $this->view('pilotos/index', [
             'titulo' => 'Pilotos 2025',
             'pilotos' => array_map(function ($piloto) use ($utilizador) {
                 return $piloto + ['motivo_bloqueio' => Pilotos::motivoBloqueio($piloto, $utilizador)];
-            }, $this->model('Pilotos')->getAll($filters)),
+            }, $pilotosModel->getAll($filters)),
             'filters' => $filters,
+            'nacionalidades' => $nacionalidades,
             'construtores' => $this->model('Construtores')->getAll(),
             'favoritos' => $utilizador ? $this->model('Favoritos')->getIds('pilotos', (int) $utilizador['id']) : [],
             'success' => $this->successMessage('Piloto')
@@ -83,6 +91,10 @@ class PilotosController extends Controller {
             'nacionalidade' => '',
             'construtor_id' => null
         ];
+        $nacionalidades = Geografia::incluirValorAtual(
+            Geografia::nacionalidades(),
+            $piloto['nacionalidade']
+        );
 
         if ($this->isPost()) {
             $numero = filter_var($_POST['numero'] ?? null, FILTER_VALIDATE_INT);
@@ -100,6 +112,9 @@ class PilotosController extends Controller {
                 'nome' => ['Nome', 100],
                 'nacionalidade' => ['Nacionalidade', 50]
             ]);
+            if (!in_array($piloto['nacionalidade'], $nacionalidades, true)) {
+                $errors[] = 'Seleciona uma nacionalidade válida.';
+            }
             if ($numero === false || $numero < 0) {
                 $errors[] = 'Indica um número de piloto válido.';
             }
@@ -121,6 +136,7 @@ class PilotosController extends Controller {
         $this->view('pilotos/form', [
             'titulo' => $id === null ? 'Adicionar Piloto' : 'Editar Piloto',
             'piloto' => $piloto,
+            'nacionalidades' => $nacionalidades,
             'construtores' => $construtoresModel->getAll(),
             'errors' => $errors,
             'action' => url('pilotos/' . ($id === null ? 'create' : 'update/' . $id))
