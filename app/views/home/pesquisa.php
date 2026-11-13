@@ -3,7 +3,8 @@ $r = $data['resultados'];
 $q = $data['q'];
 ?>
 
-<form action="<?php echo url('home/pesquisa'); ?>" method="GET" class="mb-4" role="search">
+<form action="<?php echo url('home/pesquisa'); ?>" method="GET" class="mb-4" role="search"
+      data-live-search data-live-results="#global-search-results" data-live-empty-url="<?php echo url(); ?>">
     <label for="pesquisa" class="form-label fw-bold">Pesquisa global</label>
     <div class="input-group input-group-lg">
         <input type="search" id="pesquisa" name="q" class="form-control" value="<?php echo e($q); ?>" required>
@@ -11,6 +12,7 @@ $q = $data['q'];
     </div>
 </form>
 
+<div id="global-search-results" aria-live="polite">
 <h1 class="h4 fw-bold mb-4">
     <?php echo (int) $data['total']; ?> resultado<?php echo $data['total'] === 1 ? '' : 's'; ?> para "<?php echo e($q); ?>"
 </h1>
@@ -98,4 +100,5 @@ $q = $data['q'];
             </div>
         </section>
     <?php endif; ?>
+</div>
 </div>

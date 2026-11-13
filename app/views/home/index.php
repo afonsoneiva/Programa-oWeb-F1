@@ -17,13 +17,15 @@ $km = function ($valor) {
             Pilotos, equipas e os <?php echo (int) $totais['circuitos']; ?> Grandes Prémios do calendário, num só lugar.
         </p>
 
-        <form action="<?php echo url('home/pesquisa'); ?>" method="GET" class="pesquisa-global" role="search">
+        <form action="<?php echo url('home/pesquisa'); ?>" method="GET" class="pesquisa-global" role="search"
+              data-live-search data-live-results="#global-search-results" data-live-empty-url="<?php echo url(); ?>">
             <label for="pesquisa" class="visually-hidden">Pesquisar</label>
             <div class="input-group input-group-lg">
                 <input type="search" id="pesquisa" name="q" class="form-control" placeholder="Pesquisa um piloto, equipa ou circuito…" required>
                 <button type="submit" class="btn btn-danger px-4">Pesquisar</button>
             </div>
         </form>
+        <div id="global-search-results" aria-live="polite"></div>
         <p class="small text-white-50 mt-2 mb-0">
             Experimenta:
             <?php foreach (['Verstappen', 'Ferrari', 'Mónaco'] as $exemplo): ?>

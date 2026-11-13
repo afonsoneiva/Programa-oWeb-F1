@@ -7,7 +7,8 @@
     <?php endif; ?>
 </div>
 
-<form action="<?php echo url('construtores'); ?>" method="GET" class="card card-body shadow-sm mb-4">
+<form action="<?php echo url('construtores'); ?>" method="GET" class="card card-body shadow-sm mb-4"
+      data-live-search data-live-results="#construtores-results">
     <div class="row g-3 align-items-end">
         <div class="col-12 col-lg-6">
             <label for="q" class="form-label">Pesquisa livre</label>
@@ -42,6 +43,7 @@
     </div>
 </form>
 
+<div id="construtores-results" aria-live="polite">
 <div class="card shadow-sm">
     <div class="table-responsive">
         <table class="table table-striped table-hover m-0 align-middle">
@@ -101,4 +103,5 @@
             </tbody>
         </table>
     </div>
+</div>
 </div>
