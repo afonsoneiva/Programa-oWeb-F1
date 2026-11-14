@@ -3,11 +3,38 @@
    ========================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+    const modalConfirmacao = document.querySelector('#confirmarEliminacao');
+    let formularioAEliminar = null;
+
     document.addEventListener('submit', (evento) => {
         const form = evento.target;
-        if (form instanceof HTMLFormElement && form.matches('form[data-confirm]') && !window.confirm(form.dataset.confirm)) {
-            evento.preventDefault();
+        if (!(form instanceof HTMLFormElement) || !form.matches('form[data-confirm]')) {
+            return;
         }
+
+        if (form.dataset.confirmed === 'true') {
+            delete form.dataset.confirmed;
+            return;
+        }
+
+        if (modalConfirmacao) {
+            evento.preventDefault();
+            formularioAEliminar = form;
+            modalConfirmacao.querySelector('[data-confirm-message]').textContent = form.dataset.confirm;
+            bootstrap.Modal.getOrCreateInstance(modalConfirmacao).show();
+        }
+    });
+
+    modalConfirmacao?.querySelector('[data-confirm-submit]').addEventListener('click', () => {
+        if (!formularioAEliminar) {
+            return;
+        }
+
+        const form = formularioAEliminar;
+        formularioAEliminar = null;
+        form.dataset.confirmed = 'true';
+        form.requestSubmit();
+        bootstrap.Modal.getOrCreateInstance(modalConfirmacao).hide();
     });
 
     document.querySelectorAll('input[data-piloto-numero]').forEach((campo) => {
