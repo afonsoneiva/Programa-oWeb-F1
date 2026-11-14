@@ -62,6 +62,11 @@
                         <td><?php echo (int) $c['id']; ?></td>
                         <td class="fw-bold">
                             <div class="d-inline-flex align-items-center gap-2">
+                                <?php if ($c['logo'] !== null): ?>
+                                    <a class="logo-equipa" href="<?php echo e($c['logo']); ?>" target="_blank" rel="noopener noreferrer" aria-label="Abrir imagem do logótipo de <?php echo e($c['nome']); ?>">
+                                        <img src="<?php echo e($c['logo']); ?>" alt="Logótipo de <?php echo e($c['nome']); ?>" loading="lazy" decoding="async">
+                                    </a>
+                                <?php endif; ?>
                                 <?php echo e($c['nome']); ?>
                                 <?php if (auth_user()): ?>
                                     <?php $favorito = in_array((int) $c['id'], $data['favoritos'], true); ?>

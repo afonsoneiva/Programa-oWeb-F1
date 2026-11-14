@@ -20,6 +20,18 @@ class Construtores extends Model {
         'Williams-Mercedes' => '#005AFF',
         'Kick Sauber-Ferrari' => '#52E252',
     ];
+    private const LOGOS = [
+        'McLaren-Mercedes' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/mclaren/2025mclarenlogowhite.webp',
+        'Ferrari' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/ferrari/2025ferrarilogowhite.webp',
+        'Red Bull Racing-Honda RBPT' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/redbullracing/2025redbullracinglogowhite.webp',
+        'Mercedes' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/mercedes/2025mercedeslogowhite.webp',
+        'Aston Martin Aramco-Mercedes' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/astonmartin/2025astonmartinlogowhite.webp',
+        'Alpine-Renault' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/alpine/2025alpinelogowhite.webp',
+        'Haas-Ferrari' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/haasf1team/2025haasf1teamlogowhite.webp',
+        'Racing Bulls-Honda RBPT' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/racingbulls/2025racingbullslogowhite.webp',
+        'Williams-Mercedes' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/williams/2025williamslogowhite.webp',
+        'Kick Sauber-Ferrari' => 'https://media.formula1.com/image/upload/c_lfill,w_96/q_auto/v1740000001/common/f1/2025/kicksauber/2025kicksauberlogowhite.webp',
+    ];
     private const COR_PADRAO = '#6C757D';
 
     /**
@@ -56,7 +68,10 @@ class Construtores extends Model {
                 FROM construtores co";
         $construtores = $this->select($sql, $conditions, $types, $values, 'id ASC');
         return array_map(function ($construtor) {
-            return $construtor + ['cor' => self::cor($construtor['nome'])];
+            return $construtor + [
+                'cor' => self::cor($construtor['nome']),
+                'logo' => self::LOGOS[$construtor['nome']] ?? null,
+            ];
         }, $construtores);
     }
 
