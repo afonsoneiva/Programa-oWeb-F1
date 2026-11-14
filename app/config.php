@@ -18,7 +18,7 @@ $config = [
     'DB_USER' => 'root',
     'DB_PASS' => '',
     'DB_NAME' => 'pwf1',
-    'DB_PORT' => 3307,
+    'DB_PORT' => 3306,
 ];
 
 if (file_exists(__DIR__ . '/config.local.php')) {
