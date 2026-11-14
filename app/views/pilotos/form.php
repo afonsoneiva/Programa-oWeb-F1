@@ -8,8 +8,8 @@
     </div>
     <div class="row">
         <div class="col-md-6 mb-3">
-            <label for="numero" class="form-label">Número</label>
-            <input type="number" id="numero" name="numero" class="form-control" min="0" required value="<?php echo e($data['piloto']['numero']); ?>">
+            <label for="numero" class="form-label">Número (1–99, exceto 17)</label>
+            <input type="number" id="numero" name="numero" class="form-control" min="1" max="99" step="1" data-piloto-numero required value="<?php echo e($data['piloto']['numero']); ?>">
         </div>
         <div class="col-md-6 mb-3">
             <label for="nacionalidade" class="form-label">Nacionalidade</label>

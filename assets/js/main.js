@@ -10,6 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.querySelectorAll('input[data-piloto-numero]').forEach((campo) => {
+        const validarNumeroPiloto = () => {
+            campo.setCustomValidity(campo.valueAsNumber === 17 ? 'O número 17 não está disponível.' : '');
+        };
+        campo.addEventListener('input', validarNumeroPiloto);
+        validarNumeroPiloto();
+    });
+
     const inicializarTooltips = (alvo = document) => {
         alvo.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((elemento) => {
             if (!bootstrap.Tooltip.getInstance(elemento)) {

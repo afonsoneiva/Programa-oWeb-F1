@@ -115,8 +115,10 @@ class PilotosController extends Controller {
             if (!in_array($piloto['nacionalidade'], $nacionalidades, true)) {
                 $errors[] = 'Seleciona uma nacionalidade válida.';
             }
-            if ($numero === false || $numero < 0) {
-                $errors[] = 'Indica um número de piloto válido.';
+            if ($numero === false || $numero < 1 || $numero > 99 || $numero === 17) {
+                $errors[] = 'O número do piloto deve estar entre 1 e 99, exceto o 17.';
+            } elseif ($pilotosModel->numeroEmUso($numero, $id)) {
+                $errors[] = 'Esse número já está a ser utilizado por outro piloto.';
             }
             if ($construtorIdRaw !== '' && ($construtorId === null || !$construtoresModel->getById($construtorId))) {
                 $errors[] = 'Seleciona um construtor válido.';

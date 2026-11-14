@@ -50,6 +50,21 @@ class Pilotos extends Model {
         return (int) ($result[0]['total'] ?? 0);
     }
 
+    public function numeroEmUso(int $numero, ?int $excluirId = null): bool {
+        $sql = 'SELECT COUNT(*) AS total FROM pilotos WHERE numero = ?';
+        $types = 'i';
+        $values = [$numero];
+
+        if ($excluirId !== null) {
+            $sql .= ' AND id <> ?';
+            $types .= 'i';
+            $values[] = $excluirId;
+        }
+
+        $result = $this->db->execQuery($sql, [$types, $values]);
+        return (int) ($result[0]['total'] ?? 0) > 0;
+    }
+
     /**
      * Regra de eliminação de um piloto (o array tem de incluir 'vitorias'):
      *  - nunca se tiver vitórias;
