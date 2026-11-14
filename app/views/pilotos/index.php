@@ -64,6 +64,11 @@
                         <td><span class="badge badge-equipa" style="background-color: <?php echo e($p['cor_equipa']); ?>;">#<?php echo (int) $p['numero']; ?></span></td>
                         <td class="fw-bold">
                             <div class="d-inline-flex align-items-center gap-2">
+                                <?php if ($p['foto'] !== null): ?>
+                                    <a class="foto-piloto" href="<?php echo e($p['foto']); ?>" target="_blank" rel="noopener noreferrer" aria-label="Abrir fotografia de <?php echo e($p['nome']); ?>">
+                                        <img src="<?php echo e($p['foto']); ?>" alt="Fotografia de <?php echo e($p['nome']); ?>" loading="lazy" decoding="async">
+                                    </a>
+                                <?php endif; ?>
                                 <?php echo e($p['nome']); ?>
                                 <?php if (auth_user()): ?>
                                     <?php $favorito = in_array((int) $p['id'], $data['favoritos'], true); ?>

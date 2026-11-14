@@ -49,6 +49,22 @@ footer.bg-dark {
     object-fit: contain;
 }
 
+/* Retratos dos pilotos */
+.foto-piloto,
+.foto-piloto img {
+    display: block;
+    flex: 0 0 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+}
+
+.foto-piloto img {
+    object-fit: cover;
+    border: 2px solid var(--f1-escuro);
+    background-color: #f1f1f1;
+}
+
 /* Favoritos nas listagens */
 .favorito-toggle {
     display: inline-block;
