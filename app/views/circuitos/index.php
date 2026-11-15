@@ -68,6 +68,7 @@
                     <th>Voltas</th>
                     <th>Piloto Vencedor</th>
                     <th>Equipa Vencedora</th>
+                    <th>Traçado</th>
                     <?php if ($podeEditar): ?><th>Ações</th><?php endif; ?>
                 </tr>
             </thead>
@@ -97,6 +98,18 @@
                         <td><?php echo (int) $c['num_voltas']; ?></td>
                         <td><?php echo e($c['piloto_vencedor'] ?? 'N/D'); ?></td>
                         <td><?php echo e($c['construtor_vencedor'] ?? 'N/D'); ?></td>
+                        <td>
+                            <?php if ($c['imagem_tracado'] !== null): ?>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal" data-bs-target="#modalTracado"
+                                        data-imagem-tracado="<?php echo e($c['imagem_tracado']); ?>"
+                                        data-nome-circuito="<?php echo e($c['nome']); ?>">
+                                    Ver traçado
+                                </button>
+                            <?php else: ?>
+                                <span class="text-muted">Sem imagem</span>
+                            <?php endif; ?>
+                        </td>
                         <?php if ($podeEditar): ?>
                             <td class="acoes">
                                 <a href="<?php echo url('circuitos/update/' . (int) $c['id']); ?>" class="btn btn-sm btn-outline-primary">Editar</a>
@@ -116,11 +129,25 @@
                 <?php endforeach; ?>
                 <?php if (empty($data['circuitos'])): ?>
                     <tr>
-                        <td colspan="<?php echo $podeEditar ? 9 : 8; ?>" class="text-center py-4">Nenhum circuito encontrado.</td>
+                        <td colspan="<?php echo $podeEditar ? 10 : 9; ?>" class="text-center py-4">Nenhum circuito encontrado.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
 </div>
+</div>
+
+<div class="modal fade" id="modalTracado" tabindex="-1" aria-labelledby="modalTracadoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="modalTracadoTitulo">Traçado do circuito</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img class="imagem-tracado img-fluid" alt="" loading="lazy">
+            </div>
+        </div>
+    </div>
 </div>

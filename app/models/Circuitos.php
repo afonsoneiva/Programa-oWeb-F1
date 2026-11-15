@@ -7,6 +7,42 @@ class Circuitos extends Model {
     protected $table = 'circuitos';
     protected $distinctOptionFields = ['grande_premio', 'pais', 'cidade'];
 
+    private const MAPAS_TRACADO = [
+        'GP da Austrália' => 'Australia',
+        'GP da China' => 'China',
+        'GP do Japão' => 'Japan',
+        'GP do Bahrain' => 'Bahrain',
+        'GP da Arábia Saudita' => 'Saudi_Arabia',
+        'GP de Miami' => 'Miami',
+        'GP de Emília-Romanha' => 'Emilia_Romagna',
+        'GP do Mónaco' => 'Monaco',
+        'GP de Espanha' => 'Spain',
+        'GP do Canadá' => 'Canada',
+        'GP da Áustria' => 'Austria',
+        'GP da Grã-Bretanha' => 'Great_Britain',
+        'GP da Bélgica' => 'Belgium',
+        'GP da Hungria' => 'Hungary',
+        'GP dos Países Baixos' => 'Netherlands',
+        'GP de Itália' => 'Italy',
+        'GP do Azerbaijão' => 'Baku',
+        'GP de Singapura' => 'Singapore',
+        'GP dos Estados Unidos' => 'USA',
+        'GP do México' => 'Mexico',
+        'GP de São Paulo' => 'Brazil',
+        'GP de Las Vegas' => 'Las_Vegas',
+        'GP do Catar' => 'Qatar',
+        'GP de Abu Dhabi' => 'Abu_Dhabi',
+    ];
+
+    private static function mapaTracado(string $grandePremio): ?string {
+        $ficheiro = self::MAPAS_TRACADO[$grandePremio] ?? null;
+        if ($ficheiro === null) {
+            return null;
+        }
+
+        return 'https://media.formula1.com/image/upload/c_fit,h_704/q_auto/v1740000001/content/dam/fom-website/2018-redesign-assets/Circuit%20maps%2016x9/' . $ficheiro . '_Circuit.webp';
+    }
+
     /**
      * Lista de circuitos com os nomes do piloto e construtor vencedores
      * e filtros opcionais (q, grande_premio, pais, cidade).
@@ -36,7 +72,12 @@ class Circuitos extends Model {
             array_push($values, ...array_fill(0, 9, '%' . $filters['q'] . '%'));
         }
 
-        return $this->select($sql, $conditions, $types, $values, 'c.id ASC');
+        $circuitos = $this->select($sql, $conditions, $types, $values, 'c.id ASC');
+        return array_map(function ($circuito) {
+            return $circuito + [
+                'imagem_tracado' => self::mapaTracado($circuito['grande_premio']),
+            ];
+        }, $circuitos);
     }
 
     //==================================================================

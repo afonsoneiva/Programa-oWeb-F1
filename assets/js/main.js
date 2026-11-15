@@ -4,7 +4,23 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const modalConfirmacao = document.querySelector('#confirmarEliminacao');
+    const modalTracado = document.querySelector('#modalTracado');
     let formularioAEliminar = null;
+
+    modalTracado?.addEventListener('show.bs.modal', (evento) => {
+        const botao = evento.relatedTarget;
+        const imagem = modalTracado.querySelector('.imagem-tracado');
+        const titulo = modalTracado.querySelector('#modalTracadoTitulo');
+
+        if (!(botao instanceof HTMLElement) || !botao.dataset.imagemTracado || !botao.dataset.nomeCircuito || !imagem || !titulo) {
+            console.error('Não foi possível carregar o traçado do circuito selecionado.');
+            return;
+        }
+
+        titulo.textContent = `Traçado do ${botao.dataset.nomeCircuito}`;
+        imagem.src = botao.dataset.imagemTracado;
+        imagem.alt = `Traçado do circuito ${botao.dataset.nomeCircuito}`;
+    });
 
     document.addEventListener('submit', (evento) => {
         const form = evento.target;
