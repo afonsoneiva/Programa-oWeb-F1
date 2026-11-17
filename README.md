@@ -10,7 +10,8 @@ Trabalho Prático #1 de Programação Web — ECGM, ESTG-UNIPVC, 2026/2027.
 - CRUD de pilotos, construtores e circuitos
 - Filtros por atributo e pesquisa com texto livre
 - Favoritos de pilotos, construtores e circuitos, guardados por utilizador autenticado
-- Criação de conta e autenticação com sessões: as listagens são públicas; utilizadores registados podem adicionar e editar; só administradores podem eliminar
+- Criação de conta e autenticação com sessões: as listagens são públicas; utilizadores registados podem adicionar e editar pilotos e equipas e eliminar os que criaram; administradores gerem também os circuitos e podem eliminar qualquer registo
+- Integridade dos dados: não é possível eliminar pilotos com vitórias, equipas com pilotos ou vitórias, nem circuitos com vencedores registados
 - Proteção CSRF em todos os formulários, passwords guardadas com `password_hash()`
 - Interface responsiva (Bootstrap 5)
 
@@ -60,9 +61,10 @@ scripts.sql/pwf1.sql      Script de criação da base de dados
 | `/` | Página inicial: números da época, vitórias e curiosidades | |
 | `/home/pesquisa?q=` | Pesquisa global em pilotos, equipas e circuitos | |
 | `/pilotos`, `/construtores`, `/circuitos` | Listagens com filtros e pesquisa | |
-| `/<secção>/create` | Adicionar registo | utilizador |
-| `/<secção>/update/{id}` | Editar registo | utilizador |
-| `/<secção>/delete/{id}` (POST) | Eliminar registo | admin |
+| `/pilotos/create`, `/construtores/create` | Adicionar registo | utilizador |
+| `/pilotos/update/{id}`, `/construtores/update/{id}` | Editar registo | utilizador |
+| `/pilotos/delete/{id}`, `/construtores/delete/{id}` (POST) | Eliminar registo | autor ou admin |
+| `/circuitos/create`, `/circuitos/update/{id}`, `/circuitos/delete/{id}` | Gerir circuitos | admin |
 | `/favoritos/toggle` (POST) | Adicionar/remover favorito | utilizador |
 | `/sobre` | Sobre o projeto e autores | |
 | `/auth/register` | Criar conta | |

@@ -45,7 +45,8 @@ class AuthController extends Controller {
     }
 
     /**
-     * Criação de conta (perfil "utilizador": pode adicionar e editar, mas não eliminar).
+     * Criação de conta (perfil "utilizador": pode adicionar e editar pilotos e equipas,
+     * e eliminar apenas os que criou).
      */
     public function register() {
         if ($this->currentUser()) {

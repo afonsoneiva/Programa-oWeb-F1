@@ -4,9 +4,10 @@
 // O .htaccess encaminha todos os pedidos para aqui: index.php?url=...
 //======================================================================
 
-// Mostrar erros durante o desenvolvimento
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Os erros são registados no log do servidor, mas não mostrados ao visitante
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
 // Lançar exceções nos erros do MySQLi
@@ -33,4 +34,18 @@ spl_autoload_register(function ($classe) {
     }
 });
 
-new app\core\App();
+// Executar o pedido. Qualquer erro inesperado (ex.: base de dados
+// indisponível) é registado no log e mostrado como uma página de erro 500.
+ob_start();
+try {
+    new app\core\App();
+    ob_end_flush();
+} catch (Throwable $erro) {
+    ob_end_clean();
+    error_log((string) $erro);
+    http_response_code(500);
+    (new app\core\Controller())->view('erro', [
+        'titulo' => 'Erro no servidor',
+        'mensagem' => 'Ocorreu um erro inesperado. Tenta novamente dentro de alguns instantes.'
+    ]);
+}
